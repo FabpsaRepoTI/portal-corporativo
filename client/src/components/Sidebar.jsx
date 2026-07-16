@@ -17,7 +17,7 @@ const NAV_OPS = [
     to: "/mesa-de-servicio",
     icon: "ti-headset",
     label: "Mesa de Servicio",
-    badge: "Nuevo",
+    badge: "",
   },
 ];
 

@@ -12,10 +12,8 @@ import LoginPage from "./pages/LoginPage";
 import MesaDeServicioPage from "./pages/mesaServicio/MesaDeServicioPage";
 import HardwarePage from "./pages/mesaServicio/hardware/HardwarePage";
 import HardwareSolicitudesPage from "./pages/mesaServicio/hardware/HardwareSolicitudesPage";
+import ReporteIncidentePage from "./pages/mesaServicio/hardware/ReporteIncidentePage";
 //import HardwarePage from "./pages/mesaServicio/hardware/HardwarePage";
-
-// Dentro de tu <Routes>:
-
 import PageLoader from "./components/PageLoader";
 import "./App.css";
 
@@ -32,6 +30,7 @@ function AppLayout() {
               element={
                 <PageLoader>
                   <HomePage />
+
                 </PageLoader>
               }
             />
@@ -64,6 +63,14 @@ function AppLayout() {
               element={
                 <PageLoader>
                   <HardwarePage />
+                </PageLoader>
+              }
+            />
+            <Route
+              path="/mesa-de-servicio/reporte-incidente"
+              element={
+                <PageLoader>
+                  <ReporteIncidentePage />
                 </PageLoader>
               }
             />

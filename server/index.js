@@ -150,4 +150,7 @@ app.post("/api/auth/login", async (req, res) => {
 //nicio
 app.listen(PORT, () => {
   console.log(`✅ FABPSA corriendo en http://localhost:${PORT}`);
+  console.log(
+    "cdebug para consultar que el repositorio de git funciona correctamente",
+  );
 });

@@ -10,12 +10,6 @@ export default function HomePage() {
     <>
       <Hero />
       <QuickAccess />
-      <section className="dashboard">
-        <Boletin />
-        <Efemerides />
-        <Birthdays />
-        <IngredienteMes />
-      </section>
     </>
   );
 }

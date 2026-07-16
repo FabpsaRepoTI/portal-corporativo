@@ -10,3 +10,5 @@ export function useAuth() {
 
   return context;
 }
+
+//console.log("console de prueba");

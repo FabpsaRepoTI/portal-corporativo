@@ -172,7 +172,7 @@ export default function Navbar() {
         </button>
       </li>
 
-      <div className="navbar-news">
+      {/*<div className="navbar-news">
         <div className="navbar-news-track">
           <span>🤖 Microsoft expande Copilot para empresas</span>
           <span>🔒 Nueva campaña de phishing detectada en LATAM</span>
@@ -182,7 +182,7 @@ export default function Navbar() {
           <span>🤖 Microsoft expande Copilot para empresas</span>
           <span>🔒 Nueva campaña de phishing detectada en LATAM</span>
         </div>
-      </div>
+      </div>*/}
 
       <div className="navbar-right">
         <div

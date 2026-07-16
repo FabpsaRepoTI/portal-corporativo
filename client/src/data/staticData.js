@@ -1,3 +1,5 @@
+import { Route } from "react-router-dom";
+
 // ─── APLICATIVOS ─────────────────────────────────────────────
 export const APPS = [
   {
@@ -310,24 +312,93 @@ export const EFEMERIDES = [
 ];
 
 /***************** pagina mesa de servcio ******************************/
-export const SERVICIO_CHIPS = [
-  { icon: "ti-key", label: "Acceso a sistemas o aplicaciones" },
-  { icon: "ti-apps", label: "Instalación de software autorizado" },
-  { icon: "ti-mail", label: "Configuración de correo electrónico" },
-  { icon: "ti-brand-teams", label: "Soporte M365, VPN y SharePoint" },
-  { icon: "ti-wifi-off", label: "Fallas de conexión a internet o red" },
-  { icon: "ti-lock-open", label: "Fallas de acceso a sistemas" },
-  { icon: "ti-alert-circle", label: "Errores en aplicaciones o sistemas" },
-  { icon: "ti-mail-off", label: "Incidentes con herramientas corporativas" },
+export const INCIDENTES_CHIPS = [
+  {
+    icon: "ti-key",
+    label: "Equipo de cómputo",
+    descripcion: "Computadora, teclado, monitor y mouse. ",
+  },
+  {
+    icon: "ti-mail",
+    label: "Correo electrónico y Microsoft 365",
+    descripcion: "Outlook, Teams, One drive y Sharepoint.",
+  },
+  {
+    icon: "ti-apps",
+    label: "Sistemas y Aplicaciones",
+    descripcion: "Sistemas contables y Sistemas de negocio.",
+  },
+  {
+    icon: "ti-wifi-off",
+    label: "Internet y red",
+    descripcion: "Internet. Wifi, VPN, Red corporativa y accesos remotos. ",
+  },
+  {
+    icon: "ti-brand-teams",
+    label: "Impresoras y Escáneres",
+    descripcion: "Impresoras multifuncionales y etiquetadoras. ",
+  },
+  {
+    icon: "ti-lock-open",
+    label: "Telefonia y comunicaciones",
+    descripcion: "Extensiones, telefonos y VPN.",
+  },
+  {
+    icon: "ti-alert-circle",
+    label: "Infrasestructura y servidores",
+    descripcion: "Servidores, almacenamientos, respaldos y active directory. ",
+  },
+  {
+    icon: "ti-mail-off",
+    label: "Seguridad Informática",
+    descripcion:
+      "Antivirus, bloqueo de páginas, correos y mensajes sospechosos, firewall y phising.",
+  },
+  {
+    icon: "ti-brand-teams",
+    label: "Oficce 365",
+    descripcion: "Excel, Word y Power Point",
+  },
+  {
+    icon: "ti-lock-open",
+    label: "CCTV y control de acceso",
+    descripcion: "Grabaciones, cámaras y reconocimiento facial. ",
+  },
+  {
+    icon: "ti-alert-circle",
+    label: "ERP Multivisión",
+    descripcion:
+      "Reportes erroneos, modulos con mensajes de error y sistema lento.",
+  },
 ];
 
-export const HARDWARE_CHIPS = [
-  { icon: "ti-device-laptop", label: "Laptop o computadora de escritorio" },
-  { icon: "ti-device-tv", label: "Monitores, teclados o mouse" },
-  { icon: "ti-headphones", label: "Diademas, cámaras web o bocinas" },
-  { icon: "ti-refresh", label: "Reemplazo de equipo dañado u obsoleto" },
-  { icon: "ti-plug", label: "Dock station, adaptadores y cables" },
-  { icon: "ti-printer", label: "Impresoras o periféricos autorizados" },
+export const SERVICIO_CHIPS = [
+  {
+    icon: "ti-device-laptop",
+    label: "Accesos y cuentas de usuario",
+    descripcion: "Alta, bajas y modificaciones de usuario.",
+  },
+  {
+    icon: "ti-device-tv",
+    label: "Instalación y aplicaciones",
+    descripcion: "Instalacion y permisos. ",
+  },
+  {
+    icon: "ti-headphones",
+    label: "Harware y perifericos",
+    descripcion: "Solicitud de nuevos equipos. ",
+    route: "/mesa-de-servicio/hardware",
+  },
+  {
+    icon: "ti-refresh",
+    label: "Servicios generales TI",
+    descripcion: "Atención y asesoria. ",
+  },
+  {
+    icon: "ti-plug",
+    label: "Seguridad informatica",
+    descripcion: "Acceso a sitios",
+  },
 ];
 
 export const SOFTWARE_CHIPS = [
@@ -348,7 +419,7 @@ export const HERO_TAGS = [
 
 /****************************   pagina de hardware *****************************************************************/
 
-export const MOTIVOS = [
+/*export const MOTIVOS = [
   "Necesito un equipo nuevo",
   "Mi equipo ya no funciona correctamente",
   "Mi equipo es insuficiente para mis actividades",
@@ -368,4 +439,4 @@ export const ICON_MAP = {
   usb: "ti-usb",
   cable: "ti-plug",
   default: "ti-device-desktop",
-};
+};*/

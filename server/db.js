@@ -1,4 +1,7 @@
-const sql = require("mssql");
+import sql from "mssql";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const dbConfig = {
   user: process.env.DB_USER,
@@ -18,9 +21,12 @@ const dbConfig = {
 };
 
 let pool;
-async function getPool() {
-  if (!pool) pool = await sql.connect(dbConfig);
+
+export async function getPool() {
+  if (!pool) {
+    pool = await sql.connect(dbConfig);
+  }
   return pool;
 }
 
-module.exports = { getPool, sql };
+export { sql };

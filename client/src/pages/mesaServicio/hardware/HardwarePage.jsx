@@ -5,7 +5,29 @@ import {
 } from "../../../services/hardwareService";
 import { AuthContext } from "../../../context/AuthContext";
 import "./MesaDeServicioPage.css";
-import { MOTIVOS, ICON_MAP } from "../../../data/staticData.js";
+//import { MOTIVOS, ICON_MAP } from "../../../data/staticData.js";
+
+export const MOTIVOS = [
+  "Necesito un equipo nuevo",
+  "Mi equipo ya no funciona correctamente",
+  "Mi equipo es insuficiente para mis actividades",
+  "Solo necesito el equipo por un tiempo",
+];
+
+export const ICON_MAP = {
+  mouse: "ti-mouse",
+  teclado: "ti-keyboard",
+  webcam: "ti-camera",
+  laptop: "ti-device-laptop",
+  monitor: "ti-device-tv",
+  impresora: "ti-printer",
+  audífonos: "ti-headphones",
+  headset: "ti-headphones",
+  disco: "ti-database",
+  usb: "ti-usb",
+  cable: "ti-plug",
+  default: "ti-device-desktop",
+};
 
 function getIcon(nombre) {
   const n = nombre.toLowerCase();

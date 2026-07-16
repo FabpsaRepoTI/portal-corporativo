@@ -186,20 +186,16 @@ button {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  margin-left: 60px;
 }
 
-/*.main-content {
-  flex: 1;
-}*/
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
 }
 
-/* ══════════════════════════════════════════════
-   SIDEBAR
-══════════════════════════════════════════════ */
 /* ══════════════════════════════════════════════
    SIDEBAR
 ══════════════════════════════════════════════ */
@@ -211,10 +207,11 @@ button {
   flex-direction: column;
   align-items: flex-start;
   padding: 14px 0;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   height: 100vh;
-  z-index: 100;
+  z-index: 200;
   flex-shrink: 0;
   overflow: hidden;
   transition:
@@ -3248,11 +3245,16 @@ button {
   }
 }
 
-/* Contenido — aparece tras el loader */
 .pl-content {
   opacity: 0;
   transition: opacity 0.22s ease;
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
+
 .pl-content--visible {
   opacity: 1;
 }
