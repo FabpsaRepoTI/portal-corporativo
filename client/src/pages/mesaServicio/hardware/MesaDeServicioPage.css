@@ -2608,3 +2608,99 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — MESA DE SERVICIO
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .mds2-root {
+    padding: 16px 16px 40px;
+    gap: 14px;
+  }
+
+  /* Saludo + hero + accesos pasan a columna única */
+  .mds2-greeting-row {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
+  }
+
+  /* Restaurar posición normal en flujo de columna única */
+  .mds2-greeting {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .mds2-hero-card {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 20px 20px;
+    min-height: auto;
+  }
+
+  /* Accesos rápidos debajo del hero, columna única, sin stretch */
+  .mds2-quick {
+    grid-column: 1;
+    grid-row: 3;
+    flex-direction: column;
+  }
+
+  /* Items de accesos rápidos con altura fija en lugar de flex:1 */
+  .mds2-quick-item {
+    flex: none;
+    padding: 12px 18px;
+  }
+
+  /* Ocultar la decoración SVG en móvil — ocupa espacio innecesario */
+  .mds2-hero-deco {
+    display: none;
+  }
+
+  /* Categorías en 1 columna */
+  .mds2-categories {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* Accordion chips en 1 columna */
+  .mds2-acc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Footer en columna */
+  .mds2-footer-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .mds2-footer-divider {
+    display: none;
+  }
+
+  /* Título del greeting más compacto */
+  .mds2-greeting-title {
+    font-size: 22px;
+  }
+
+  /* Hero card title más compacto */
+  .mds2-hero-card-title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mds2-root {
+    padding: 12px 12px 32px;
+  }
+
+  .mds2-greeting-title {
+    font-size: 20px;
+  }
+
+  .mds2-cat {
+    padding: 14px 12px;
+  }
+}
