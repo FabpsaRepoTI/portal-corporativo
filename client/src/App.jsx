@@ -13,7 +13,7 @@ import MesaDeServicioPage from "./pages/mesaServicio/MesaDeServicioPage";
 import HardwarePage from "./pages/mesaServicio/hardware/HardwarePage";
 import HardwareSolicitudesPage from "./pages/mesaServicio/hardware/HardwareSolicitudesPage";
 import ReporteIncidentePage from "./pages/mesaServicio/hardware/ReporteIncidentePage";
-//import HardwarePage from "./pages/mesaServicio/hardware/HardwarePage";
+import SolicitudPage from "./pages/mesaServicio/SolicitudPage";
 import PageLoader from "./components/PageLoader";
 import "./App.css";
 
@@ -30,7 +30,6 @@ function AppLayout() {
               element={
                 <PageLoader>
                   <HomePage />
-
                 </PageLoader>
               }
             />
@@ -79,6 +78,14 @@ function AppLayout() {
               element={
                 <PageLoader>
                   <HardwareSolicitudesPage />
+                </PageLoader>
+              }
+            />
+            <Route
+              path="/mesa-de-servicio/solicitud/:slug"
+              element={
+                <PageLoader>
+                  <SolicitudPage />
                 </PageLoader>
               }
             />

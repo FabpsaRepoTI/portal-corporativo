@@ -31,6 +31,9 @@ app.use("/api/hardware", hardwareRoutes);
 const solicitudesRoutes = require("./routes/solicitudes.routes");
 app.use("/api/solicitudes", solicitudesRoutes);
 
+const serviciosRoutes = require("./routes/servicios.routes");
+app.use("/api/servicios", serviciosRoutes);
+
 // REACT FRONTEND (ESTO ES LO NUEVO)
 /*app.use(express.static('D:\\Intranet'));
 

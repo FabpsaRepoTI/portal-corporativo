@@ -275,65 +275,72 @@ export const INCIDENTES_ICONS = {
 
 export const INCIDENTES_CHIPS = [
   {
-    icon: "ti-key",
+    id: "inc-computo",
+    icon: "ti-desktop",
     label: "Equipo de cómputo",
-    descripcion: "Computadora, teclado, monitor y mouse. ",
+    descripcion: "Computadora, teclado, monitor y mouse.",
   },
   {
+    id: "inc-correo",
     icon: "ti-mail",
     label: "Correo electrónico y Microsoft 365",
-    descripcion: "Outlook, Teams, One drive y Sharepoint.",
+    descripcion: "Outlook, Teams, OneDrive y SharePoint.",
   },
   {
+    id: "inc-sistemas",
     icon: "ti-apps",
     label: "Sistemas y Aplicaciones",
-    descripcion: "Sistemas contables y Sistemas de negocio.",
+    descripcion: "Sistemas contables y de negocio.",
   },
   {
+    id: "inc-red",
     icon: "ti-wifi-off",
     label: "Internet y red",
-    descripcion: "Internet. Wifi, VPN, Red corporativa y accesos remotos. ",
+    descripcion: "Internet, WiFi, VPN, red corporativa.",
   },
   {
-    icon: "ti-brand-teams",
+    id: "inc-impresoras",
+    icon: "ti-printer",
     label: "Impresoras y Escáneres",
-    descripcion: "Impresoras multifuncionales y etiquetadoras. ",
+    descripcion: "Impresoras multifuncionales y etiquetadoras.",
   },
   {
-    icon: "ti-lock-open",
-    label: "Telefonia y comunicaciones",
-    descripcion: "Extensiones, telefonos y VPN.",
+    id: "inc-telefonia",
+    icon: "ti-phone",
+    label: "Telefonía y comunicaciones",
+    descripcion: "Extensiones, teléfonos y VPN.",
   },
   {
-    icon: "ti-alert-circle",
-    label: "Infrasestructura y servidores",
-    descripcion: "Servidores, almacenamientos, respaldos y active directory. ",
+    id: "inc-servidores",
+    icon: "ti-server",
+    label: "Infraestructura y servidores",
+    descripcion: "Servidores, almacenamiento, respaldos y AD.",
   },
   {
-    icon: "ti-mail-off",
+    id: "inc-seguridad",
+    icon: "ti-shield",
     label: "Seguridad Informática",
-    descripcion:
-      "Antivirus, bloqueo de páginas, correos y mensajes sospechosos, firewall y phising.",
+    descripcion: "Antivirus, firewall, phishing y correos sospechosos.",
   },
   {
-    icon: "ti-brand-teams",
-    label: "Oficce 365",
-    descripcion: "Excel, Word y Power Point",
+    id: "inc-office365",
+    icon: "ti-brand-office",
+    label: "Office 365",
+    descripcion: "Excel, Word y PowerPoint.",
   },
   {
-    icon: "ti-lock-open",
+    id: "inc-cctv",
+    icon: "ti-camera",
     label: "CCTV y control de acceso",
-    descripcion: "Grabaciones, cámaras y reconocimiento facial. ",
+    descripcion: "Grabaciones, cámaras y reconocimiento facial.",
   },
   {
-    icon: "ti-alert-circle",
+    id: "inc-erp",
+    icon: "ti-chart-bar",
     label: "ERP Multivisión",
-    descripcion:
-      "Reportes erroneos, modulos con mensajes de error y sistema lento.",
+    descripcion: "Reportes erróneos, módulos con error, sistema lento.",
   },
 ];
-
-
 
 /***************** BOLETIN ********************/
 

@@ -16,12 +16,12 @@ export default function MesaDeServicioPage() {
   const firstName = user?.name?.split(" ")[0] ?? "Usuario";
 
   const handleCategoryClick = (cat) => {
-    if (cat.action === "navigate") {
-      navigate(cat.route);
-    } else if (cat.action === "incident") {
-      navigate("/mesa-de-servicio/reporte-incidente");
+    if (cat.id === "hardware") {
+      navigate(cat.route); // HardwarePage sin cambios
     } else if (cat.action === "accordion") {
       setIncidentesOpen((v) => !v);
+    } else {
+      navigate(`/mesa-de-servicio/solicitud/${cat.id}`);
     }
   };
 
@@ -164,7 +164,7 @@ export default function MesaDeServicioPage() {
           <div className="mds2-quick-header">Accesos rápidos</div>
           <button
             className="mds2-quick-item"
-            onClick={() => navigate("/mesa-de-servicio/reporte-incidente")}
+            onClick={() => navigate(`/mesa-de-servicio/solicitud/${chip.id}`)}
           >
             <span className="mds2-quick-ico mds2-quick-ico--emerald">
               <i className="ti ti-circle-plus" />
