@@ -1,80 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import { INCIDENTES_CHIPS } from "../../data/staticData.js";
+import {
+  INCIDENTES_CHIPS,
+  INCIDENTES_ICONS,
+  CATEGORIAS,
+} from "../../data/staticData.js";
 import "./hardware/MesaDeServicioPage.css";
-
-const CATEGORIAS = [
-  {
-    id: "hardware",
-    icon: "ti-device-laptop",
-    label: "Hardware y periféricos",
-    descripcion: "Solicita equipos, accesorios o componentes físicos.",
-    color: "emerald",
-    badge: "Popular",
-    action: "navigate",
-    route: "/mesa-de-servicio/hardware",
-  },
-  {
-    id: "desarrollo",
-    icon: "ti-code",
-    label: "Desarrollo de sistemas",
-    descripcion: "Solicita desarrollo, mejoras o mantenimiento de sistemas.",
-    color: "amber",
-    badge: "Nuevo",
-    action: "navigate",
-    route: "/mesa-de-servicio/desarrollo",
-  },
-  {
-    id: "software",
-    icon: "ti-apps",
-    label: "Software",
-    descripcion:
-      "Instalación, actualización, configuración o desinstalación de software autorizado por la empresa.",
-    color: "blue",
-    action: "incident",
-  },
-  {
-    id: "accesos",
-    icon: "ti-lock",
-    label: "Accesos y cuentas de usuario",
-    descripcion:
-      "Altas, bajas y modificaciones de usuario en correo electrónico.",
-    color: "orange",
-    action: "incident",
-  },
-  {
-    id: "incidentes",
-    icon: "ti-alert-triangle",
-    label: "Incidentes y fallas",
-    descripcion: "Reporta problemas técnicos o fallas en servicios.",
-    color: "violet",
-    action: "accordion",
-  },
-  {
-    id: "consultas",
-    icon: "ti-message-circle",
-    label: "Servicios generales TI",
-    descripcion:
-      "Asesoría o servicios relacionados con el uso de las herramientas tecnológicas de la empresa.",
-    color: "teal",
-    action: "incident",
-  },
-];
-
-const INCIDENTES_ICONS = {
-  "Equipo de cómputo": "ti-device-desktop",
-  "Correo electrónico y Microsoft 365": "ti-mail",
-  "Sistemas y Aplicaciones": "ti-apps",
-  "Internet y red": "ti-wifi-off",
-  "Impresoras y Escáneres": "ti-printer",
-  "Telefonia y comunicaciones": "ti-phone",
-  "Infrasestructura y servidores": "ti-server",
-  "Seguridad Informática": "ti-shield-lock",
-  "Oficce 365": "ti-brand-office",
-  "CCTV y control de acceso": "ti-camera",
-  "ERP Multivisión": "ti-chart-bar",
-};
 
 export default function MesaDeServicioPage() {
   const navigate = useNavigate();
@@ -354,7 +286,7 @@ export default function MesaDeServicioPage() {
         <div className="mds2-footer-item">
           <span
             className="mds2-footer-ico"
-            style={{ background: "#7c8cf8", color: "#fff" }}
+            style={{ background: "#10b981", color: "#fff" }}
           >
             <i className="ti ti-shield-check" />
           </span>
@@ -369,14 +301,14 @@ export default function MesaDeServicioPage() {
         <div className="mds2-footer-item">
           <span
             className="mds2-footer-ico"
-            style={{ background: "#f6a623", color: "#fff" }}
+            style={{ background: "#10b981", color: "#fff" }}
           >
             <i className="ti ti-clock" />
           </span>
           <div>
             <div className="mds2-footer-label">Horarios de atención</div>
             <div className="mds2-footer-sub">
-              Lun – Vie &nbsp;8:00 AM – 6:00 PM
+              Lun – Vie &nbsp;8:00 AM – 6:00 PM / Sab &nbsp;7:00 AM – 13:00 PM
             </div>
           </div>
         </div>

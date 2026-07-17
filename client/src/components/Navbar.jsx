@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
-import logoFabpsa from "../logo-fabpsa.png";
+
 import { useAuth } from "../hooks/useAuth";
 
 export default function Navbar() {

@@ -199,119 +199,80 @@ export const QUICK_APPS = [
   },
 ];
 
-// ─── BOLETÍN — Números impactantes ────────────────────────────
-export const BOLETIN_STATS = [
+export const CATEGORIAS = [
   {
-    value: "1 de cada 3",
-    label:
-      "alimentos producidos en el mundo se desperdician antes de llegar al consumidor. Reducir mermas es uno de los mayores retos de la industria alimentaria.",
-    icon: "ti-chart-bar",
-    color: "#c4a058",
+    id: "hardware",
+    icon: "ti-device-laptop",
+    label: "Hardware y periféricos",
+    descripcion:
+      "Solicite la asignación, reemplazo o préstamo de equipos y accesorios tecnológicos.",
+    color: "emerald",
+    badge: "Popular",
+    action: "navigate",
+    route: "/mesa-de-servicio/hardware",
   },
   {
-    value: "95%",
-    label:
-      "de los ataques cibernéticos exitosos comienzan con un correo electrónico, enlace o archivo engañoso. La concientización sigue siendo la mejor defensa.",
-    icon: "ti-shield-lock",
-    color: "#f87171",
+    id: "desarrollo",
+    icon: "ti-code",
+    label: "Desarrollo de sistemas",
+    descripcion: "Solicita desarrollo, mejoras o mantenimiento de sistemas.",
+    color: "amber",
+    badge: "Nuevo",
+    action: "navigate",
+    route: "/mesa-de-servicio/desarrollo",
   },
   {
-    value: "50%",
-    label:
-      "de las actividades administrativas podrían automatizarse parcial o totalmente mediante herramientas de inteligencia artificial durante esta década.",
-    icon: "ti-robot",
-    color: "#a78bfa",
+    id: "software",
+    icon: "ti-apps",
+    label: "Software",
+    descripcion:
+      "Instalación, actualización Y configuración de software autorizado por la empresa.",
+    color: "blue",
+    action: "incident",
   },
   {
-    value: "99.7%",
-    label:
-      "de precisión puede alcanzar la visión artificial para detectar defectos en productos y procesos de manufactura.",
-    icon: "ti-eye",
-    color: "#34d399",
+    id: "accesos",
+    icon: "ti-lock",
+    label: "Accesos y cuentas de usuario",
+    descripcion:
+      "Altas, bajas y modificaciones de usuario en correo electronico.",
+    color: "orange",
+    action: "incident",
   },
   {
-    value: "24/7",
-    label:
-      "operan muchas líneas de producción modernas. Un paro inesperado puede representar pérdidas significativas en productividad y servicio.",
-    icon: "ti-factory",
-    color: "#60a5fa",
+    id: "incidentes",
+    icon: "ti-alert-triangle",
+    label: "Incidentes y fallas",
+    descripcion:
+      "Reporta fallas en equipos, aplicaciones, sistemas o cualquier incidente tecnológico",
+    color: "violet",
+    action: "accordion",
   },
   {
-    value: "7 segundos",
-    label:
-      "son suficientes para que una persona forme una primera impresión sobre una marca, producto o experiencia de servicio.",
-    icon: "ti-bulb",
-    color: "#f59e0b",
-  },
-  {
-    value: "80%",
-    label:
-      "de los fabricantes planean incrementar inversiones en automatización, analítica de datos e Industria 4.0 durante los próximos años.",
-    icon: "ti-settings-automation",
-    color: "#22c55e",
-  },
-  {
-    value: "2030",
-    label:
-      "es el horizonte estratégico de muchas organizaciones para alcanzar metas de sostenibilidad, eficiencia energética y reducción de emisiones.",
-    icon: "ti-world",
-    color: "#06b6d4",
-  },
-];
-
-// ─── EFEMÉRIDES  ────────────────────────────────────────
-export const EFEMERIDES = [
-  {
-    day: "01",
-    title: "Inteligencia Artificial",
-    tag: "Tecnología",
-    desc: "Un empleado promedio pierde hasta 2 horas al día buscando información. La IA permite recuperar documentos, respuestas y datos en segundos.",
-  },
-  {
-    day: "03",
-    title: "Ciberseguridad",
-    tag: "TI",
-    desc: "Más del 90% de los ataques exitosos comienzan con un correo electrónico aparentemente legítimo.",
-  },
-  {
-    day: "06",
-    title: "Productividad",
-    tag: "Negocios",
-    desc: "Una reunión de 1 hora con 10 personas consume el equivalente a más de una jornada completa de trabajo.",
-  },
-  {
-    day: "09",
-    title: "Industria Alimentaria",
-    tag: "Alimentos",
-    desc: "Aproximadamente un tercio de los alimentos producidos en el mundo nunca llega al consumidor final.",
-  },
-  {
-    day: "12",
-    title: "Calidad",
-    tag: "Manufactura",
-    desc: "Detectar un defecto durante la producción puede costar hasta 100 veces menos que descubrirlo después de la entrega al cliente.",
-  },
-  {
-    day: "15",
-    title: "Automatización",
-    tag: "Industria 4.0",
-    desc: "Las plantas que integran automatización avanzada pueden incrementar su productividad entre un 20% y un 30%.",
-  },
-  {
-    day: "18",
-    title: "Innovación",
-    tag: "Empresas",
-    desc: "Las organizaciones que innovan constantemente tienen más probabilidades de mantener ventajas competitivas a largo plazo.",
-  },
-  {
-    day: "21",
-    title: "Datos",
-    tag: "Analítica",
-    desc: "Cada minuto se generan millones de registros digitales. La diferencia está en convertir esos datos en decisiones.",
+    id: "consultas",
+    icon: "ti-message-circle",
+    label: "Servicios generales TI",
+    descripcion:
+      "Asesoría o servicios relacionados con el uso de las herramientas tecnológicas de la empresa.",
+    color: "teal",
+    action: "incident",
   },
 ];
 
-/***************** pagina mesa de servcio ******************************/
+export const INCIDENTES_ICONS = {
+  "Equipo de cómputo": "ti-device-desktop",
+  "Correo electrónico y Microsoft 365": "ti-mail",
+  "Sistemas y Aplicaciones": "ti-apps",
+  "Internet y red": "ti-wifi-off",
+  "Impresoras y Escáneres": "ti-printer",
+  "Telefonia y comunicaciones": "ti-phone",
+  "Infrasestructura y servidores": "ti-server",
+  "Seguridad Informática": "ti-shield-lock",
+  "Oficce 365": "ti-brand-office",
+  "CCTV y control de acceso": "ti-camera",
+  "ERP Multivisión": "ti-chart-bar",
+};
+
 export const INCIDENTES_CHIPS = [
   {
     icon: "ti-key",
@@ -372,71 +333,225 @@ export const INCIDENTES_CHIPS = [
   },
 ];
 
-export const SERVICIO_CHIPS = [
+
+
+/***************** BOLETIN ********************/
+
+export const TICKER_ITEMS = [
+  "Burnout laboral: el 52% de trabajadores mexicanos reporta síntomas en 2026 — IMSS",
+  "NOM-035: solo el 32% de empresas medianas tiene evaluación de riesgo psicosocial actualizada",
+  "Pausas activas de 5 min cada hora aumentan la productividad un 13% — MIT Sloan",
+  "El 68% de empresas medianas aún no cumple todos los requisitos NOM-035 — IMSS 2026",
+  "Agotamiento laboral reconocido por la OMS como condición médica desde 2019",
+  "Empresas que capacitan antes de implementar IA reportan 2.3× mayor adopción exitosa",
+];
+
+export const ARTICULOS = [
   {
-    icon: "ti-device-laptop",
-    label: "Accesos y cuentas de usuario",
-    descripcion: "Alta, bajas y modificaciones de usuario.",
+    tag: "NOM-035 · Factor VI",
+    tagColor: "mint",
+    titulo: "Qué es la NOM-035 y por qué te afecta directamente",
+    cuerpo:
+      "La Norma Oficial Mexicana NOM-035-STPS-2018 obliga a todas las empresas a identificar, analizar y prevenir los factores de riesgo psicosocial en el trabajo. No es opcional — es ley. Y no es un trámite administrativo: es una herramienta real para que puedas reportar situaciones de carga excesiva, conflictos o ambiente hostil de forma confidencial.",
+    insight:
+      "💡 Tienes derecho a reportar condiciones laborales que afecten tu bienestar. El área de RH tiene protocolos confidenciales para recibirte.",
   },
   {
-    icon: "ti-device-tv",
-    label: "Instalación y aplicaciones",
-    descripcion: "Instalacion y permisos. ",
+    tag: "Factores de riesgo",
+    tagColor: "violet",
+    titulo: "Los 6 factores que la NOM-035 te pide identificar en tu trabajo",
+    cuerpo:
+      "La norma define seis dominios de riesgo: condiciones del ambiente de trabajo, carga y ritmo de trabajo, jornada laboral, interferencia trabajo-familia, liderazgo y relaciones en el trabajo, y violencia laboral. Conocerlos te permite nombrar lo que sientes — y nombrar es el primer paso para actuar.",
+    insight:
+      "💡 El 74% de los factores de riesgo psicosocial en manufactura son prevenibles con cambios organizacionales — no requieren inversión económica.",
   },
   {
-    icon: "ti-headphones",
-    label: "Harware y perifericos",
-    descripcion: "Solicitud de nuevos equipos. ",
-    route: "/mesa-de-servicio/hardware",
-  },
-  {
-    icon: "ti-refresh",
-    label: "Servicios generales TI",
-    descripcion: "Atención y asesoria. ",
-  },
-  {
-    icon: "ti-plug",
-    label: "Seguridad informatica",
-    descripcion: "Acceso a sitios",
+    tag: "Bienestar real",
+    tagColor: "amber",
+    titulo: "Burnout: cómo saber si lo tienes y qué puedes hacer hoy",
+    cuerpo:
+      "El burnout tiene tres señales clave: agotamiento persistente que no mejora con descanso, cinismo o desapego hacia el trabajo, y sensación de ineficacia aunque hagas esfuerzo. Si reconoces las tres, no es debilidad — es una condición médica reconocida por la OMS desde 2019 que requiere atención.",
+    insight:
+      "💡 El primer paso es reconocerlo. El segundo es hablarlo — con tu líder, con RH, o con alguien de confianza. No tienes que cargarlo solo.",
   },
 ];
 
-export const SOFTWARE_CHIPS = [
-  { icon: "ti-sparkles", label: "Nuevos desarrollos a medida" },
-  { icon: "ti-tools", label: "Mejoras a sistemas existentes" },
-  { icon: "ti-robot", label: "Automatización de procesos" },
-  { icon: "ti-report-analytics", label: "Nuevos reportes e indicadores" },
-  { icon: "ti-layout-dashboard", label: "Nuevos módulos o pantallas" },
-  { icon: "ti-git-merge", label: "Integraciones entre sistemas" },
+export const METRICAS = [
+  {
+    label: "Burnout en México",
+    value: "52%",
+    fill: 52,
+    color: "rose",
+    caption: "Trabajadores con síntomas de agotamiento crónico — IMSS 2026",
+  },
+  {
+    label: "Empresas sin evaluación",
+    value: "68%",
+    fill: 68,
+    color: "amber",
+    caption: "Empresas medianas sin evaluación NOM-035 actualizada — IMSS 2026",
+  },
+  {
+    label: "Mejora con pausas",
+    value: "+13%",
+    fill: 65,
+    color: "mint",
+    caption:
+      "Aumento de productividad con micro-pausas de 5 min cada hora — MIT",
+  },
+  {
+    label: "Factores prevenibles",
+    value: "74%",
+    fill: 74,
+    color: "violet",
+    caption:
+      "Factores de riesgo psicosocial prevenibles sin inversión económica",
+  },
+  {
+    label: "ROI con capacitación",
+    value: "2.3×",
+    fill: 77,
+    color: "mint",
+    caption:
+      "Mayor adopción cuando la empresa capacita antes de implementar cambios",
+  },
 ];
 
-export const HERO_TAGS = [
-  { icon: "ti-send", label: "Solicitudes" },
-  { icon: "ti-device-laptop", label: "Hardware" },
-  { icon: "ti-code", label: "Desarrollo" },
-  { icon: "ti-headset", label: "Soporte" },
+export const TRIVIA = [
+  {
+    pregunta:
+      "¿Cuál de estas es una señal de riesgo psicosocial reconocida por la NOM-035?",
+    opciones: [
+      { texto: "Tener muchas tareas un día específico", correcto: false },
+      {
+        texto: "Jornadas excesivas de forma sistemática y continua",
+        correcto: true,
+      },
+      {
+        texto: "No llevarse bien con un compañero en particular",
+        correcto: false,
+      },
+    ],
+    feedback:
+      "La NOM-035 distingue entre situaciones puntuales y condiciones sistemáticas. Las jornadas excesivas de forma continua son un factor de riesgo psicosocial que la norma obliga a identificar y atender.",
+  },
+  {
+    pregunta: "¿Cuántas empresas están obligadas a cumplir la NOM-035-STPS?",
+    opciones: [
+      { texto: "Solo empresas con más de 500 empleados", correcto: false },
+      { texto: "Todas las empresas en México, sin excepción", correcto: true },
+      { texto: "Solo empresas del sector industrial", correcto: false },
+    ],
+    feedback:
+      "La NOM-035 aplica a todos los centros de trabajo en México, independientemente del tamaño o sector. El nivel de aplicación varía según el número de trabajadores, pero ninguna empresa está exenta.",
+  },
+  {
+    pregunta:
+      "Si identificas una condición de riesgo psicosocial en tu trabajo, ¿qué debes hacer?",
+    opciones: [
+      { texto: "Aguantarlo — es parte del trabajo", correcto: false },
+      {
+        texto:
+          "Reportarlo al área de RH — la norma protege tu confidencialidad",
+        correcto: true,
+      },
+      {
+        texto: "Esperar a que la empresa haga su evaluación anual",
+        correcto: false,
+      },
+    ],
+    feedback:
+      "La NOM-035 establece mecanismos de reporte confidencial. No tienes que esperar: puedes reportar en cualquier momento al área de RH. La norma prohíbe represalias contra quien reporta.",
+  },
 ];
 
-/****************************   pagina de hardware *****************************************************************/
+export const ESTADOS_DATA = {
+  verde: {
+    color: "var(--success)",
+    titulo: "Estás en verde — mantén ese ritmo",
+    cuerpo:
+      "Llegaste con energía y motivación. Eso se nota en la calidad del trabajo y en el ambiente del equipo. Aprovecha este estado para las tareas que requieren más concentración.",
+    tips: [
+      "Comparte tu energía positiva — el buen estado de ánimo es contagioso.",
+      "Usa este momento para avanzar en proyectos importantes o aprender algo nuevo.",
+      "Anota cómo llegaste hoy y qué lo hizo posible, para replicarlo.",
+    ],
+    nom: "NOM-035: El bienestar sostenido es indicador clave del Factor IV — Liderazgo y relaciones en el trabajo.",
+  },
+  amarillo: {
+    color: "var(--warning)",
+    titulo: "Estás en amarillo — pon atención a tu energía",
+    cuerpo:
+      "El cansancio acumulado es la señal más común que el cuerpo envía antes de un desgaste mayor. No es alarma, pero sí es una señal para cuidarte hoy un poco más.",
+    tips: [
+      "Toma al menos dos pausas activas de 5 minutos: estiramiento o caminata corta.",
+      "Hidratación: el cansancio leve muchas veces es deshidratación moderada.",
+      "Al terminar la jornada, separa 10 minutos para cerrar pendientes mentalmente.",
+    ],
+    nom: "NOM-035: El cansancio acumulado puede ser síntoma de jornadas extensas. Si es frecuente, identifica si existe riesgo psicosocial en tu entorno.",
+  },
+  naranja: {
+    color: "#E8833A",
+    titulo: "Estás en naranja — gestiona la presión antes de que crezca",
+    cuerpo:
+      "La presión moderada puede ser útil a corto plazo, pero gestionada mal se convierte en estrés crónico. Hoy es un buen día para ordenar prioridades.",
+    tips: [
+      "Haz una lista de los 3 pendientes MÁS importantes y enfócate solo en ellos hoy.",
+      "Practica la técnica 4-7-8 (inhala 4s, retén 7s, exhala 8s) antes de tareas difíciles.",
+      "Si algo te genera presión externamente, habla con tu líder directo.",
+    ],
+    nom: "NOM-035 Factor VI: Las cargas excesivas son factores de riesgo psicosocial reconocidos. Si es frecuente, repórtalo al área de RH.",
+  },
+  rojo: {
+    color: "var(--danger)",
+    titulo: "Estás en rojo — hoy priorizamos tu bienestar",
+    cuerpo:
+      "El agotamiento sostenido afecta la salud, la concentración y las relaciones laborales. Reconocerlo no es debilidad — es la base para actuar.",
+    tips: [
+      "Habla hoy mismo con alguien de confianza: tu líder, un compañero o RH.",
+      "Reduce al mínimo las decisiones importantes hoy — el cerebro agotado decide peor.",
+      "Esta noche: sin pantallas 1 hora antes de dormir. El sueño es la herramienta de recuperación más poderosa.",
+    ],
+    nom: "NOM-035: El agotamiento severo puede ser un factor de riesgo psicosocial. La norma obliga a la empresa a identificar y atender estas situaciones.",
+  },
+  azul: {
+    color: "var(--secondary)",
+    titulo: "Estás en azul — reconecta con tu propósito hoy",
+    cuerpo:
+      "Sentirse distante o poco motivado es más común de lo que parece. No siempre hay una causa obvia — y no siempre la necesitas para actuar.",
+    tips: [
+      "Haz una tarea pequeña y concreta: completar algo reactiva el sistema de recompensa.",
+      "Busca un momento de conexión social genuina: un café, una plática breve con un compañero.",
+      "Si esta sensación lleva varios días, considera hablar con alguien.",
+    ],
+    nom: "NOM-035 Factor V: El desapego y la falta de sentido son indicadores de riesgo psicosocial. La norma protege tu derecho a un ambiente que favorezca el bienestar emocional.",
+  },
+};
 
-/*export const MOTIVOS = [
-  "Necesito un equipo nuevo",
-  "Mi equipo ya no funciona correctamente",
-  "Mi equipo es insuficiente para mis actividades",
-  "Solo necesito el equipo por un tiempo",
+export const SABIAS = [
+  {
+    icon: "🧬",
+    titulo: "El agotamiento cambia físicamente la estructura del cerebro",
+    cuerpo:
+      "Estudios de neuroimagen muestran que el estrés crónico reduce el volumen de la corteza prefrontal — la región responsable de la toma de decisiones y el control emocional. El descanso no es un lujo: es mantenimiento neurológico.",
+  },
+  {
+    icon: "😴",
+    titulo: "Dormir menos de 7 horas equivale cognitivamente a no dormir",
+    cuerpo:
+      "Un estudio de la Universidad de Pennsylvania demostró que perder 1.5 horas de sueño por noche durante una semana reduce el rendimiento cognitivo al nivel de llevar 24 horas sin dormir. Y los sujetos no se sentían tan deteriorados como en realidad estaban.",
+  },
+  {
+    icon: "🌿",
+    titulo:
+      "El ejercicio de 20 minutos tiene el mismo efecto que un antidepresivo leve",
+    cuerpo:
+      "Un meta-análisis con 14,000 participantes confirmó que 20 minutos de actividad física moderada tienen efecto equivalente a antidepresivos de primera generación para estados de ánimo bajos. No requiere gimnasio: una caminata sirve.",
+  },
+  {
+    icon: "🍅",
+    titulo: "La técnica Pomodoro aumenta la concentración hasta un 40%",
+    cuerpo:
+      "25 minutos de trabajo sin interrupciones seguidos de 5 minutos de pausa. Después de 4 ciclos, descanso de 20 minutos. El cerebro mantiene foco sostenido mejor en sprints que en maratones. Francesco Cirillo la desarrolló en 1980 con un temporizador de cocina.",
+  },
 ];
-
-export const ICON_MAP = {
-  mouse: "ti-mouse",
-  teclado: "ti-keyboard",
-  webcam: "ti-camera",
-  laptop: "ti-device-laptop",
-  monitor: "ti-device-tv",
-  impresora: "ti-printer",
-  audífonos: "ti-headphones",
-  headset: "ti-headphones",
-  disco: "ti-database",
-  usb: "ti-usb",
-  cable: "ti-plug",
-  default: "ti-device-desktop",
-};*/

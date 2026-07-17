@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import logoFabpsa from "../logo-fabpsa.png";
 
 const NAV_MAIN = [
   { to: "/", icon: "ti-home", label: "Inicio" },
@@ -25,7 +26,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo-mark">
-        <i className="ti ti-building-factory-2" />
+        <img className="logoFabpsa" src={logoFabpsa} alt="FABPSA" />
       </div>
 
       <nav className="sidebar-nav">

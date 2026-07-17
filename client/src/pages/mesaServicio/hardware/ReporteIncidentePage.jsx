@@ -1,3 +1,21 @@
+/*1. he creado dos tablas cat_incidentesTI y cat_prioridad 
+idPrioridad	prioridad
+3	Alta
+1	Baja
+4	Crítica
+2	Media
+
+
+vamos excatamente a ver que necesitamos:
+
+
+
+
+
+*/
+
+
+
 import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";

@@ -1,6 +1,6 @@
-# FABPSA Intranet v4 — React + Node.js + SQL Server
+# FABPSA Intranet v1 — React + Node.js + SQL Server
 
-Negro & Oro · Ultra Premium · Node.js API · React Frontend
+· Node.js API · React Frontend
 
 ---
 
@@ -16,10 +16,7 @@ fabpsa-v4/
 │   │   │   ├── Sidebar.jsx
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── Hero.jsx
-│   │   │   ├── QuickAccess.jsx
-│   │   │   ├── Boletin.jsx       ← Números impactantes
-│   │   │   ├── Efemerides.jsx
-│   │   │   ├── Birthdays.jsx     ← Datos reales de SQL Server
+│   │   │   ├── QuickAccess.jsx    ←
 │   │   │   └── Footer.jsx
 │   │   ├── pages/
 │   │   │   ├── HomePage.jsx
@@ -110,6 +107,7 @@ Esto genera la carpeta `/client/build`.
 ### Paso 5 — Subir el build a IIS
 
 Copia el contenido de `/client/build` a:
+
 ```
 C:\inetpub\wwwroot\intranet\
 ```
@@ -166,12 +164,12 @@ Crea `C:\inetpub\wwwroot\intranet\web.config`:
 
 ## ✏️ Personalizar contenido
 
-| Qué               | Dónde                                    |
-|-------------------|------------------------------------------|
-| Aplicativos       | `src/data/staticData.js` → `APPS`        |
-| Acceso rápido     | `src/data/staticData.js` → `QUICK_APPS`  |
-| Números boletín   | `src/data/staticData.js` → `BOLETIN_STATS` |
-| Efemérides        | `src/data/staticData.js` → `EFEMERIDES`  |
-| Colores dark      | `src/App.css` → `:root, [data-theme="dark"]` |
-| Colores light     | `src/App.css` → `[data-theme="light"]`   |
-| DB conexión       | `server/index.js` → `dbConfig`           |
+| Qué             | Dónde                                        |
+| --------------- | -------------------------------------------- |
+| Aplicativos     | `src/data/staticData.js` → `APPS`            |
+| Acceso rápido   | `src/data/staticData.js` → `QUICK_APPS`      |
+| Números boletín | `src/data/staticData.js` → `BOLETIN_STATS`   |
+| Efemérides      | `src/data/staticData.js` → `EFEMERIDES`      |
+| Colores dark    | `src/App.css` → `:root, [data-theme="dark"]` |
+| Colores light   | `src/App.css` → `[data-theme="light"]`       |
+| DB conexión     | `server/index.js` → `dbConfig`               |

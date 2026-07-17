@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginService, saveSession } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
 import logo from "../logo-fabpsa.png";
-import "./Loggin.css";
+import "../style/Loggin.css";
 
 export default function LoginPage() {
   const [loginInput, setLoginInput] = useState("");
