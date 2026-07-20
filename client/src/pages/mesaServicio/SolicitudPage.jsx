@@ -3,10 +3,8 @@ import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useServicioConfig } from "../../hooks/useServicioConfig";
 import { AuthContext } from "../../context/AuthContext";
-
-//import { AuthContext } from "../../context/AuthContext";
-import "./SolicitudPage.css";
-
+//import "./SolicitudPage.css";
+import "./hardware/MesaDeServicioPage.css";
 /* ─── Pantalla de éxito ──────────────────────────────────────────── */
 function PantallaExito({ folio, config, onNueva }) {
   const navigate = useNavigate();
@@ -46,7 +44,7 @@ function PantallaExito({ folio, config, onNueva }) {
   );
 }
 
-/* ─── Skeleton de carga ──────────────────────────────────────────── */
+/* ─── Skeleton ───────────────────────────────────────────────────── */
 function SkeletonForm() {
   return (
     <div className="sp-skeleton">
@@ -69,6 +67,124 @@ function formatMinutos(min) {
   return `${Math.round(min / 1440)} días`;
 }
 
+function formatFechaCorta() {
+  const now = new Date();
+  return now.toLocaleDateString("es-MX", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/* ─── Stepper ────────────────────────────────────────────────────── */
+function Stepper({ paso, color }) {
+  const pasos = ["Categoría", "Detalle", "Confirmación"];
+  return (
+    <div className="sp-stepper">
+      {pasos.map((label, i) => {
+        const num = i + 1;
+        const done = num < paso;
+        const active = num === paso;
+        return (
+          <div key={label} className="sp-stepper__item">
+            <div
+              className={`sp-stepper__circle ${done ? "sp-stepper__circle--done" : ""} ${active ? "sp-stepper__circle--active" : ""}`}
+              style={
+                active
+                  ? { background: color, borderColor: color, color: "#fff" }
+                  : done
+                    ? { background: color, borderColor: color, color: "#fff" }
+                    : {}
+              }
+            >
+              {done ? <i className="ti ti-check" /> : num}
+            </div>
+            <span
+              className={`sp-stepper__label ${active ? "sp-stepper__label--active" : ""}`}
+              style={active ? { color } : {}}
+            >
+              {label}
+            </span>
+            {i < pasos.length - 1 && (
+              <div
+                className={`sp-stepper__line ${done ? "sp-stepper__line--done" : ""}`}
+                style={done ? { background: color } : {}}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── Upload de evidencia ────────────────────────────────────────── */
+function EvidenciaUpload({ color }) {
+  const [archivo, setArchivo] = useState(null);
+  const [drag, setDrag] = useState(false);
+
+  function handleFile(file) {
+    if (!file) return;
+    setArchivo(file);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    setDrag(false);
+    const file = e.dataTransfer.files[0];
+    handleFile(file);
+  }
+
+  return (
+    <div
+      className={`sp-evidencia ${drag ? "sp-evidencia--drag" : ""}`}
+      style={drag ? { borderColor: color } : {}}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDrag(true);
+      }}
+      onDragLeave={() => setDrag(false)}
+      onDrop={handleDrop}
+    >
+      {archivo ? (
+        <div className="sp-evidencia__preview">
+          <i className="ti ti-file-check" style={{ color }} />
+          <span className="sp-evidencia__nombre">{archivo.name}</span>
+          <button
+            type="button"
+            className="sp-evidencia__quitar"
+            onClick={() => setArchivo(null)}
+          >
+            <i className="ti ti-x" />
+          </button>
+        </div>
+      ) : (
+        <>
+          <i className="ti ti-cloud-upload sp-evidencia__icon" />
+          <p className="sp-evidencia__texto">
+            Arrastra una imagen o captura de pantalla
+          </p>
+          <p className="sp-evidencia__hint">PNG, JPG · Máx. 5 MB</p>
+          <label
+            className="sp-evidencia__btn"
+            style={{ borderColor: color, color }}
+          >
+            <i className="ti ti-upload" />
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              style={{ display: "none" }}
+              onChange={(e) => handleFile(e.target.files[0])}
+            />
+          </label>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ─── Componente principal ───────────────────────────────────────── */
 export default function SolicitudPage() {
   const { slug } = useParams();
@@ -76,38 +192,37 @@ export default function SolicitudPage() {
   const { user } = useContext(AuthContext);
   const { config, loading, error } = useServicioConfig(slug);
 
-  /* Estado del formulario */
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [prioridad, setPrioridad] = useState(null);
+  const [prioridadObj, setPrioridadObj] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [folio, setFolio] = useState(null);
+  const [fechaActual] = useState(formatFechaCorta());
 
-  /* Resetear form cuando cambia el slug */
   useEffect(() => {
     setTitulo("");
     setDescripcion("");
     setPrioridad(null);
+    setPrioridadObj(null);
     setSubmitError(null);
     setFolio(null);
   }, [slug]);
 
-  /* Autofill de título cuando llega la config */
   useEffect(() => {
     if (config?.comportamiento?.tituloAutofill) {
       setTitulo(config.comportamiento.tituloAutofill);
     }
   }, [config]);
 
-  /* Prioridad default */
   useEffect(() => {
     if (config?.prioridadDefault) {
       setPrioridad(config.prioridadDefault.idPrioridad);
+      setPrioridadObj(config.prioridadDefault);
     }
   }, [config]);
 
-  /* ── submit ── */
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
@@ -149,10 +264,10 @@ export default function SolicitudPage() {
     setTitulo("");
     setDescripcion("");
     setPrioridad(config?.prioridadDefault?.idPrioridad ?? null);
+    setPrioridadObj(config?.prioridadDefault ?? null);
     setSubmitError(null);
   }
 
-  /* ── renders de estado ── */
   if (loading)
     return (
       <div className="sp-wrapper">
@@ -188,13 +303,18 @@ export default function SolicitudPage() {
     );
   }
 
-  /* ── alias útiles ── */
   const color = config.colorPrimario;
-  const colorBg = `${color}18`;
+  const colorBg = `${color}15`;
   const mostrarPrio = config.comportamiento?.mostrarPrioridad;
   const autofill = !!config.comportamiento?.tituloAutofill;
   const sla = config.prioridadDefault;
   const form = config.form ?? {};
+
+  /* Determina el paso del stepper: si hay autofill = ya pasó categoría */
+  const paso = autofill ? 2 : 2;
+
+  /* Prioridad activa para el resumen */
+  const prioActiva = prioridadObj ?? sla;
 
   return (
     <div className="sp-wrapper">
@@ -212,144 +332,224 @@ export default function SolicitudPage() {
         </span>
       </nav>
 
+      {/* ── Header: icono + título + folio + stepper ── */}
+      <div className="sp-header-bar">
+        <div className="sp-header-bar__left">
+          <div
+            className="sp-header-bar__icon"
+            style={{ background: colorBg, color }}
+          >
+            <i className={`ti ${config.icono ?? "ti-ticket"}`} />
+          </div>
+          <div>
+            <p className="sp-header-bar__eyebrow">
+              MESA DE SERVICIO ·{" "}
+              <span style={{ color }}>{config.nombre?.toUpperCase()}</span>
+            </p>
+            <h1 className="sp-header-bar__titulo">
+              {form.titulo ?? "Nueva solicitud"}
+            </h1>
+            {form.subtitulo && (
+              <p className="sp-header-bar__sub">{form.subtitulo}</p>
+            )}
+          </div>
+        </div>
+        <div className="sp-header-bar__folio">
+          <span className="sp-header-bar__folio-label">
+            <i className="ti ti-hash" /> Folio asignado
+          </span>
+          <span className="sp-header-bar__folio-num" style={{ color }}>
+            {folio ?? "—"}
+          </span>
+          <span className="sp-header-bar__folio-hint">
+            Generado automáticamente al enviar
+          </span>
+        </div>
+      </div>
+
+      {/* ── Stepper ── */}
+      <Stepper paso={paso} color={color} />
+
+      {/* ── Layout principal ── */}
       <div className="sp-layout">
-        {/* ══════════ FORMULARIO ══════════ */}
-        <div className="sp-card">
-          {/* Header con acento de color */}
-          <div className="sp-card__header" style={{ borderTopColor: color }}>
-            <div
-              className="sp-card__icon"
-              style={{ background: colorBg, color }}
-            >
-              <i className={`ti ${config.icono ?? "ti-ticket"}`} />
-            </div>
-            <div>
-              <h1 className="sp-card__titulo">
-                {form.titulo ?? "Nueva solicitud"}
-              </h1>
-              {form.subtitulo && (
-                <p className="sp-card__subtitulo">{form.subtitulo}</p>
+        {/* ══ COLUMNA IZQUIERDA: formulario + evidencia ══ */}
+        <div className="sp-col-main">
+          {/* Formulario */}
+          <div className="sp-card">
+            <form className="sp-form" onSubmit={handleSubmit}>
+              {/* Categoría chip (si tiene autofill, mostrar la cat seleccionada) */}
+              {autofill && (
+                <div
+                  className="sp-cat-chip"
+                  style={{
+                    background: colorBg,
+                    color,
+                    borderColor: `${color}40`,
+                  }}
+                >
+                  <i className={`ti ${config.icono ?? "ti-tag"}`} />
+                  {config.nombre}
+                </div>
               )}
-            </div>
+
+              {/* Título del problema */}
+              <div className="sp-section-title">Cuéntanos qué está pasando</div>
+              {form.descripcion && (
+                <p className="sp-section-hint">{form.descripcion}</p>
+              )}
+
+              <div className="sp-field">
+                <label className="sp-label" htmlFor="sp-titulo">
+                  Título del problema <span className="sp-required">*</span>
+                </label>
+                <input
+                  id="sp-titulo"
+                  className="sp-input"
+                  type="text"
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
+                  placeholder={
+                    form.placeholderTitulo ??
+                    "Describe brevemente el problema o solicitud"
+                  }
+                  maxLength={120}
+                  required
+                  readOnly={autofill}
+                  style={
+                    autofill
+                      ? { color: "var(--text-muted)", cursor: "default" }
+                      : {}
+                  }
+                />
+              </div>
+
+              <div className="sp-field">
+                <label className="sp-label" htmlFor="sp-desc">
+                  Descripción detallada <span className="sp-required">*</span>
+                </label>
+                <textarea
+                  id="sp-desc"
+                  className="sp-textarea"
+                  value={descripcion}
+                  onChange={(e) => setDescripcion(e.target.value)}
+                  placeholder={
+                    form.placeholderDesc ??
+                    "¿Qué ocurrió? ¿Desde cuándo? ¿Qué equipo o sistema está afectado?"
+                  }
+                  rows={6}
+                  maxLength={1000}
+                  required
+                />
+                <span className="sp-char-count">
+                  {descripcion.length} / 1000 caracteres
+                </span>
+              </div>
+
+              {/* Selector de prioridad */}
+              {mostrarPrio && config.prioridades?.length > 0 && (
+                <div className="sp-field">
+                  <label className="sp-label">
+                    Prioridad <span className="sp-required">*</span>
+                  </label>
+                  <div className="sp-prio-grid">
+                    {config.prioridades.map((p) => {
+                      const active = prioridad === p.idPrioridad;
+                      return (
+                        <button
+                          key={p.idPrioridad}
+                          type="button"
+                          className={`sp-prio-btn ${active ? "sp-prio-btn--active" : ""}`}
+                          style={
+                            active
+                              ? {
+                                  borderColor: p.colorHex,
+                                  background: `${p.colorHex}15`,
+                                  color: p.colorHex,
+                                }
+                              : {}
+                          }
+                          onClick={() => {
+                            setPrioridad(p.idPrioridad);
+                            setPrioridadObj(p);
+                          }}
+                        >
+                          <i
+                            className="sp-prio-dot"
+                            style={{ background: p.colorHex }}
+                          />
+                          <span className="sp-prio-nombre">{p.nombre}</span>
+                          <span className="sp-prio-desc">
+                            {p.descripcion ?? ""}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {/* SLA de la prioridad seleccionada */}
+                  {prioActiva && (
+                    <div
+                      className="sp-sla-inline"
+                      style={{
+                        borderColor: `${prioActiva.color ?? color}40`,
+                        background: `${prioActiva.color ?? color}0d`,
+                      }}
+                    >
+                      <i
+                        className="ti ti-clock"
+                        style={{ color: prioActiva.color ?? color }}
+                      />
+                      <span style={{ color: prioActiva.color ?? color }}>
+                        Tiempo de respuesta estimado para prioridad{" "}
+                        {prioActiva.nombre}&nbsp;&nbsp;
+                        <strong>
+                          {formatMinutos(prioActiva.slaRespuestaMin)}
+                        </strong>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Ayuda contextual */}
+              {form.ayudaContextual && (
+                <div className="sp-ayuda" style={{ borderLeftColor: color }}>
+                  <i className="ti ti-info-circle" style={{ color }} />
+                  <p>{form.ayudaContextual}</p>
+                </div>
+              )}
+
+              {/* Error */}
+              {submitError && (
+                <div className="sp-submit-error">
+                  <i className="ti ti-alert-circle" />
+                  {submitError}
+                </div>
+              )}
+            </form>
           </div>
 
-          {/* Formulario */}
-          <form className="sp-form" onSubmit={handleSubmit}>
-            {/* Título */}
-            <div className="sp-field">
-              <label className="sp-label" htmlFor="sp-titulo">
-                Título de la solicitud
-                {autofill && (
-                  <span
-                    className="sp-badge"
-                    style={{ background: colorBg, color }}
-                  >
-                    autocompletado
-                  </span>
-                )}
-              </label>
-              <input
-                id="sp-titulo"
-                className="sp-input"
-                type="text"
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
-                placeholder={
-                  form.placeholderTitulo ??
-                  "Describe brevemente el problema o solicitud"
-                }
-                maxLength={120}
-                required
-                readOnly={autofill}
-                style={
-                  autofill
-                    ? { color: "var(--text-muted)", cursor: "default" }
-                    : {}
-                }
-              />
-            </div>
+          {/* Evidencia */}
+          <div className="sp-card sp-card--evidencia">
+            <div className="sp-card__section-label">Evidencia (opcional)</div>
+            <EvidenciaUpload color={color} />
+          </div>
 
-            {/* Descripción */}
-            <div className="sp-field">
-              <label className="sp-label" htmlFor="sp-desc">
-                Descripción detallada
-              </label>
-              <textarea
-                id="sp-desc"
-                className="sp-textarea"
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                placeholder={
-                  form.placeholderDesc ??
-                  "¿Qué ocurrió? ¿Desde cuándo? ¿Qué equipo o sistema está afectado?"
-                }
-                rows={5}
-                maxLength={2000}
-                required
-              />
-              <span className="sp-char-count">{descripcion.length} / 2000</span>
-            </div>
-
-            {/* Selector de prioridad (condicional) */}
-            {mostrarPrio && config.prioridades?.length > 0 && (
-              <div className="sp-field">
-                <label className="sp-label">Prioridad</label>
-                <div className="sp-prio-grid">
-                  {config.prioridades.map((p) => {
-                    const active = prioridad === p.idPrioridad;
-                    return (
-                      <button
-                        key={p.idPrioridad}
-                        type="button"
-                        className={`sp-prio-btn ${active ? "sp-prio-btn--active" : ""}`}
-                        style={
-                          active
-                            ? {
-                                borderColor: p.colorHex,
-                                background: `${p.colorHex}18`,
-                                color: p.colorHex,
-                              }
-                            : {}
-                        }
-                        onClick={() => setPrioridad(p.idPrioridad)}
-                      >
-                        <span
-                          className="sp-prio-dot"
-                          style={{ background: p.colorHex }}
-                        />
-                        <span className="sp-prio-nombre">{p.nombre}</span>
-                        <span className="sp-prio-sla">
-                          Resp. {p.slaRespuestaHrs}h
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Ayuda contextual */}
-            {form.ayudaContextual && (
-              <div className="sp-ayuda" style={{ borderLeftColor: color }}>
-                <i className="ti ti-info-circle" style={{ color }} />
-                <p>{form.ayudaContextual}</p>
-              </div>
-            )}
-
-            {/* Error de envío */}
-            {submitError && (
-              <div className="sp-submit-error">
-                <i className="ti ti-alert-circle" />
-                {submitError}
-              </div>
-            )}
-
-            {/* Botón enviar */}
+          {/* Botones */}
+          <div className="sp-footer-btns">
+            <button
+              type="button"
+              className="sp-btn sp-btn--ghost"
+              onClick={() => navigate(-1)}
+            >
+              Cancelar
+            </button>
             <button
               type="submit"
-              className="sp-btn sp-btn--primary sp-btn--full"
+              form="sp-main-form"
+              className="sp-btn sp-btn--primary"
               disabled={submitting}
               style={{ background: color, borderColor: color }}
+              onClick={handleSubmit}
             >
               {submitting ? (
                 <>
@@ -357,69 +557,109 @@ export default function SolicitudPage() {
                 </>
               ) : (
                 <>
-                  <i className="ti ti-send" /> Enviar solicitud
+                  <i className="ti ti-send" /> Enviar reporte
                 </>
               )}
             </button>
-          </form>
+          </div>
         </div>
 
-        {/* ══════════ SIDEBAR INFO ══════════ */}
+        {/* ══ SIDEBAR ══ */}
         <aside className="sp-sidebar">
-          {/* Banner SLA */}
-          {sla && (
-            <div className="sp-sla-card" style={{ borderTopColor: color }}>
-              <div
-                className="sp-sla-card__head"
-                style={{ background: colorBg }}
-              >
-                <i className="ti ti-clock" style={{ color }} />
-                <span style={{ color }}>Tiempos de atención</span>
+          {/* Resumen */}
+          <div className="sp-sidebar-card">
+            <div className="sp-sidebar-card__head">
+              <i className="ti ti-info-circle" />
+              <span>Resumen de solicitud</span>
+            </div>
+            <div className="sp-sidebar-card__body">
+              <div className="sp-resumen-row">
+                <span className="sp-resumen-label">Estatus</span>
+                <span className="sp-resumen-badge sp-resumen-badge--abierto">
+                  ● Abierto
+                </span>
               </div>
-              <div className="sp-sla-card__body">
-                <div className="sp-sla-row">
-                  <span className="sp-sla-label">Primera respuesta</span>
-                  <span className="sp-sla-value" style={{ color }}>
-                    {formatMinutos(sla.slaRespuestaMin)}
-                  </span>
-                </div>
-                <div className="sp-sla-row">
-                  <span className="sp-sla-label">Resolución estimada</span>
-                  <span className="sp-sla-value" style={{ color }}>
-                    {formatMinutos(sla.slaResolucionMin)}
-                  </span>
-                </div>
-                <div className="sp-sla-row">
-                  <span className="sp-sla-label">Prioridad asignada</span>
+
+              <div className="sp-resumen-row">
+                <span className="sp-resumen-label">Categoría</span>
+                <span className="sp-resumen-val">{config.nombre}</span>
+              </div>
+
+              {prioActiva && (
+                <div className="sp-resumen-row">
+                  <span className="sp-resumen-label">Prioridad</span>
                   <span
-                    className="sp-sla-badge"
+                    className="sp-resumen-val"
                     style={{
-                      background: `${sla.color}18`,
-                      color: sla.color,
-                      border: `1px solid ${sla.color}40`,
+                      color: prioActiva.color ?? color,
+                      fontWeight: 600,
                     }}
                   >
-                    {sla.nombre}
+                    {prioActiva.nombre}
                   </span>
                 </div>
+              )}
+
+              <div className="sp-resumen-row">
+                <span className="sp-resumen-label">Sitio</span>
+                <span className="sp-resumen-val">{user?.sitio ?? "—"}</span>
+              </div>
+
+              <div className="sp-resumen-row">
+                <span className="sp-resumen-label">Fecha</span>
+                <span className="sp-resumen-val">{fechaActual}</span>
               </div>
             </div>
-          )}
+
+            {/* Resolución estimada */}
+            {sla && (
+              <div
+                className="sp-resolucion"
+                style={{ borderTopColor: "var(--border)" }}
+              >
+                <div className="sp-resolucion__head" style={{ color }}>
+                  <i className="ti ti-clock" style={{ color }} />
+                  Resolución estimada
+                </div>
+                <div className="sp-resolucion__val">
+                  Antes de las {formatMinutos(sla.slaResolucionMin)}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Tips */}
-          <div className="sp-tips-card">
-            <div className="sp-tips-card__head">
+          <div className="sp-sidebar-card">
+            <div className="sp-sidebar-card__head">
               <i className="ti ti-bulb" />
-              <span>Consejos para tu solicitud</span>
+              <span>Tips para una respuesta más rápida</span>
             </div>
-            <ul className="sp-tips-list">
-              <li>Describe el problema con el mayor detalle posible.</li>
-              <li>Indica desde cuándo ocurre el fallo.</li>
-              <li>Menciona si otros usuarios están afectados.</li>
-              <li>
-                Si tienes capturas de pantalla, las podrás adjuntar después.
-              </li>
-            </ul>
+            <div className="sp-tips-list">
+              {[
+                {
+                  icon: "ti-align-left",
+                  text: "Describe desde cuándo ocurre el problema y si afecta a más personas.",
+                },
+                {
+                  icon: "ti-camera",
+                  text: "Adjunta una captura de pantalla o foto del error visible.",
+                },
+                {
+                  icon: "ti-device-laptop",
+                  text: "Incluye el nombre de tu equipo o número de serie si lo sabes.",
+                },
+              ].map((tip, i) => (
+                <div key={i} className="sp-tip-item">
+                  <div
+                    className="sp-tip-item__icon"
+                    style={{ background: colorBg, color }}
+                  >
+                    <i className={`ti ${tip.icon}`} />
+                  </div>
+                  <p className="sp-tip-item__text">{tip.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </aside>
       </div>

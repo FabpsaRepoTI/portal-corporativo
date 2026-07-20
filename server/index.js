@@ -28,11 +28,14 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/public")));
 app.use("/api/hardware", hardwareRoutes);
 
-const solicitudesRoutes = require("./routes/solicitudes.routes");
-app.use("/api/solicitudes", solicitudesRoutes);
+const sistemasAdminRoutes = require("./routes/sistemasAdmin.routes");
+app.use("/api/admin", sistemasAdminRoutes);
 
 const serviciosRoutes = require("./routes/servicios.routes");
 app.use("/api/servicios", serviciosRoutes);
+
+const solicitudesTIRoutes = require("./routes/solicitudes.routes");
+app.use("/api/solicitudes", solicitudesTIRoutes);
 
 // REACT FRONTEND (ESTO ES LO NUEVO)
 /*app.use(express.static('D:\\Intranet'));

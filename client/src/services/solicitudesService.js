@@ -1,8 +1,9 @@
 // Aquí definimos la URL base del backend para solicitudes.
 // process.env.REACT_APP_API_URL viene del archivo .env.development
 // que ya configuramos antes — en desarrollo vale http://localhost:3001/api
-const API = `${process.env.REACT_APP_API_URL}/solicitudes`;
-
+//const API = `${process.env.REACT_APP_API_URL}/solicitudes`;
+const API_ADMIN = `${process.env.REACT_APP_API_URL}/admin`;
+const API       = `${process.env.REACT_APP_API_URL}/solicitudes`;
 // Esta función lee el token JWT que guardamos en localStorage al hacer login.
 // Lo necesitamos para identificarnos ante el backend en cada petición.
 function getToken() {
@@ -21,17 +22,26 @@ function headers() {
 
 // Trae todas las solicitudes de hardware con su detalle de artículos.
 // Es un GET — solo pide datos, no envía nada.
-export async function getSolicitudesHardware() {
-  const res = await fetch(`${API}/hardware`, { headers: headers() });
-  if (!res.ok) throw new Error("Error cargando solicitudes");
-  return res.json();
-}
+
+
 
 // Guarda los cambios de atención de una solicitud.
 // Recibe el ID de la solicitud y un array de cambios por artículo.
 // Es un POST — envía datos al backend.
+
+
+
+// Rechaza una solicitud completa — marca todos sus artículos como Rechazada.
+// Solo recibe el ID de la solicitud.
+
+export async function getSolicitudesHardware() {
+  const res = await fetch(`${API_ADMIN}/hardware`, { headers: headers() });
+  if (!res.ok) throw new Error("Error cargando solicitudes");
+  return res.json();
+}
+
 export async function atenderSolicitud(idSolicitud, cambios) {
-  const res = await fetch(`${API}/hardware/atender`, {
+  const res = await fetch(`${API_ADMIN}/hardware/atender`, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify({ idSolicitud, cambios }),
@@ -40,10 +50,8 @@ export async function atenderSolicitud(idSolicitud, cambios) {
   return res.json();
 }
 
-// Rechaza una solicitud completa — marca todos sus artículos como Rechazada.
-// Solo recibe el ID de la solicitud.
 export async function rechazarSolicitud(idSolicitud) {
-  const res = await fetch(`${API}/hardware/rechazar`, {
+  const res = await fetch(`${API_ADMIN}/hardware/rechazar`, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify({ idSolicitud }),

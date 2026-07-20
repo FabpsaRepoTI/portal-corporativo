@@ -12,7 +12,8 @@ export function useServicioConfig(slug) {
     setConfig(null);
     setError(null);
 
-    fetch(`/api/servicios/${slug}`, {
+    /*fetch(`/api/servicios/${slug}`, {*/
+    fetch(`${process.env.REACT_APP_API_URL}/servicios/${slug}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("fabpsa_token")}`,
       },

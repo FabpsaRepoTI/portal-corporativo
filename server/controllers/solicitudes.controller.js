@@ -1,71 +1,105 @@
-const sql = require("mssql");
+const {
+  crearSolicitud,
+  obtenerSolicitudesUsuario,
+} = require("../services/solicitudes.service");
+const { enviarCorreoSolicitudTI } = require("../services/mailer.js");
 const { getPool } = require("../db");
 
-exports.crearSolicitud = async (req, res) => {
-  const { slug, titulo, descripcion, idPrioridad } = req.body;
-  const idUsuario = req.user.id; // viene del JWT
-
-  if (!slug || !titulo || !descripcion) {
-    return res.status(400).json({ message: "Campos requeridos incompletos." });
-  }
-
+async function postSolicitud(req, res) {
   try {
-    const pool = await getPool();
+    const { slug, titulo, descripcion, idPrioridad } = req.body;
+    const user = req.user; // viene del middleware verifyToken
 
-    // 1. Obtener idServicio desde el slug
-    const svcResult = await pool
-      .request()
-      .input("slug", sql.NVarChar, slug)
-      .query(
-        "SELECT idServicio, idPrioridadDefault FROM cat_servicioTI WHERE slug = @slug",
-      );
-
-    if (!svcResult.recordset.length) {
-      return res.status(404).json({ message: "Servicio no encontrado." });
+    if (!slug || !titulo?.trim()) {
+      return res
+        .status(400)
+        .json({ ok: false, message: "slug y titulo son requeridos" });
     }
 
-    const { idServicio, idPrioridadDefault } = svcResult.recordset[0];
-    const prioFinal = idPrioridad ?? idPrioridadDefault;
-
-    // 2. Obtener SLA de la prioridad
-    const prioResult = await pool
-      .request()
-      .input("id", sql.Int, prioFinal)
-      .query(
-        "SELECT slaRespuestaHrs, slaResolucionHrs FROM cat_prioridad WHERE idPrioridad = @id",
-      );
-
-    const { slaRespuestaHrs, slaResolucionHrs } = prioResult.recordset[0];
-
-    const ahora = new Date();
-    const fechaResp = new Date(ahora.getTime() + slaRespuestaHrs * 3600000);
-    const fechaResol = new Date(ahora.getTime() + slaResolucionHrs * 3600000);
-
-    // 3. Insertar solicitud y obtener folio
-    const insertResult = await pool
-      .request()
-      .input("idServicio", sql.Int, idServicio)
-      .input("idPrioridad", sql.Int, prioFinal)
-      .input("idUsuario", sql.Int, idUsuario)
-      .input("titulo", sql.NVarChar, titulo)
-      .input("descripcion", sql.NVarChar, descripcion)
-      .input("fechaSlaRespuesta", sql.DateTime, fechaResp)
-      .input("fechaSlaResolucion", sql.DateTime, fechaResol).query(`
-        INSERT INTO solicitudTI
-          (idServicio, idPrioridad, idUsuario, titulo, descripcion,
-           idEstatus, fechaCreacion, fechaSlaRespuesta, fechaSlaResolucion)
-        OUTPUT INSERTED.idSolicitud
-        VALUES
-          (@idServicio, @idPrioridad, @idUsuario, @titulo, @descripcion,
-           1, GETDATE(), @fechaSlaRespuesta, @fechaSlaResolucion)
+    // Obtener idServicio y nombre del servicio desde el slug
+    const pool = await getPool();
+    const svcRes = await pool.request().input("slug", slug).query(`
+        SELECT idServicio, nombre, tipo, idPrioridadDefault,
+               formTitulo, colorPrimario
+        FROM cat_servicioTI
+        WHERE slug = @slug AND activo = 1
       `);
 
-    const idSolicitud = insertResult.recordset[0].idSolicitud;
-    const folio = `TI-${String(idSolicitud).padStart(5, "0")}`;
+    if (!svcRes.recordset.length) {
+      return res
+        .status(404)
+        .json({ ok: false, message: "Servicio no encontrado" });
+    }
 
-    return res.status(201).json({ folio, idSolicitud });
+    const svc = svcRes.recordset[0];
+    const prioFinal = idPrioridad ?? svc.idPrioridadDefault;
+
+    if (!prioFinal) {
+      return res
+        .status(400)
+        .json({ ok: false, message: "No se pudo determinar la prioridad" });
+    }
+
+    // Crear solicitud en DB
+    const resultado = await crearSolicitud({
+      idServicio: svc.idServicio,
+      idPrioridad: prioFinal,
+      titulo: titulo.trim(),
+      descripcion: descripcion?.trim() ?? "",
+      idUsuario: user.login,
+      nombreUsuario: user.name ?? user.username ?? "Usuario",
+      areaUsuario: user.area ?? "",
+      sitioUsuario: user.sitio ?? "",
+    });
+
+    // Enviar correos (no bloqueante — si falla el email, la solicitud ya está guardada)
+    enviarCorreoSolicitudTI({
+      folio: resultado.folio,
+      fecha: resultado.fechaCreacion,
+      titulo: titulo.trim(),
+      descripcion: descripcion?.trim() ?? "",
+      servicio: svc.nombre,
+      prioridad: resultado.prioridad,
+      colorPrioridad: resultado.colorHex,
+      slaRespuestaHrs: resultado.slaRespuestaHrs,
+      slaResolucionHrs: resultado.slaResolucionHrs,
+      fechaLimiteResp: resultado.fechaLimiteResp,
+      fechaLimiteResol: resultado.fechaLimiteResol,
+      solicitante: user.name ?? user.username ?? "Usuario",
+      area: user.area ?? "",
+      sitio: user.sitio ?? "",
+      correoSolicitante: user.email ?? null,
+      tieneEvidencia: false,
+    }).catch((err) => console.error("[mailer] solicitudTI:", err.message));
+
+    return res.json({
+      ok: true,
+      folio: resultado.folio,
+      idSolicitud: resultado.idSolicitud,
+      slaRespuestaHrs: resultado.slaRespuestaHrs,
+      slaResolucionHrs: resultado.slaResolucionHrs,
+      fechaLimiteResp: resultado.fechaLimiteResp,
+      fechaLimiteResol: resultado.fechaLimiteResol,
+      prioridad: resultado.prioridad,
+    });
   } catch (err) {
-    console.error("[crearSolicitud]", err);
-    return res.status(500).json({ message: "Error al guardar la solicitud." });
+    console.error("[solicitudes] POST:", err);
+    res
+      .status(500)
+      .json({ ok: false, message: err.message ?? "Error interno" });
   }
-};
+}
+
+async function getMisSolicitudes(req, res) {
+  try {
+    const data = await obtenerSolicitudesUsuario(req.user.login);
+    res.json({ ok: true, data });
+  } catch (err) {
+    console.error("[solicitudes] GET mis:", err);
+    res
+      .status(500)
+      .json({ ok: false, message: "Error al obtener solicitudes" });
+  }
+}
+
+module.exports = { postSolicitud, getMisSolicitudes };

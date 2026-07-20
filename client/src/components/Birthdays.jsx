@@ -18,7 +18,9 @@ const COLORS = [
 
 //const API = 'http://localhost:3001/api/birthdays';
 
-const API = "http://192.168.16.198:3002/api/birthdays";
+//const API = "http://192.168.16.198:3001/api/birthdays";
+
+const API = `${process.env.REACT_APP_API_URL}/birthdays`;
 
 function BdayCard({ bday, index }) {
   const { ref, visible } = useReveal();
