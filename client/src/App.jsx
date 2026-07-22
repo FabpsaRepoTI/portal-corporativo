@@ -13,8 +13,11 @@ import MesaDeServicioPage from "./pages/mesaServicio/MesaDeServicioPage";
 import HardwarePage from "./pages/mesaServicio/hardware/HardwarePage";
 import HardwareSolicitudesPage from "./pages/mesaServicio/hardware/HardwareSolicitudesPage";
 import ReporteIncidentePage from "./pages/mesaServicio/hardware/ReporteIncidentePage";
-import SolicitudPage from "./pages/mesaServicio/SolicitudPage";
 import PageLoader from "./components/PageLoader";
+import SolicitudPage from "./pages/mesaServicio/solicitudServicio/SolicitudPage";
+import MisSolicitudesPage from "./pages/mesaServicio/solicitudesUsuario/MisSolicitudesPage";
+import MesaAyudaAdminPage from "./pages/mesaServicio/solicitudServicio/MesaAyudaAdminPage";
+
 import "./App.css";
 
 function AppLayout() {
@@ -87,6 +90,22 @@ function AppLayout() {
                 <PageLoader>
                   <SolicitudPage />
                 </PageLoader>
+              }
+            />
+            <Route
+              path="/mesa-de-servicio/admin"
+              element={
+                <ProtectedRoute>
+                  <MesaAyudaAdminPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mesa-de-servicio/mis-solicitudes"
+              element={
+                <ProtectedRoute>
+                  <MisSolicitudesPage />
+                </ProtectedRoute>
               }
             />
           </Routes>

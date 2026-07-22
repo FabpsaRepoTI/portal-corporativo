@@ -1,15 +1,31 @@
-// src/pages/mesa-de-servicio/SolicitudPage.jsx
-import { useState, useEffect, useContext } from "react";
+// src/pages/mesaServicio/SolicitudPage.jsx
+import { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useServicioConfig } from "../../hooks/useServicioConfig";
-import { AuthContext } from "../../context/AuthContext";
-//import "./SolicitudPage.css";
-import "./hardware/MesaDeServicioPage.css";
+import { useServicioConfig } from "../../../hooks/useServicioConfig";
+import { AuthContext } from "../../../context/AuthContext";
+import "./SolicitudPage.css";
+
+/* ─── Helpers ────────────────────────────────────────────────────── */
+function formatMinutos(min) {
+  if (!min) return "—";
+  if (min < 60) return `${min} min`;
+  if (min < 1440) return `${Math.round(min / 60)} hrs`;
+  return `${Math.round(min / 1440)} días`;
+}
+function formatFechaCorta() {
+  return new Date().toLocaleDateString("es-MX", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 /* ─── Pantalla de éxito ──────────────────────────────────────────── */
 function PantallaExito({ folio, config, onNueva }) {
   const navigate = useNavigate();
   const color = config?.colorPrimario ?? "#7c3aed";
-
   return (
     <div className="sp-exito">
       <div className="sp-exito__card">
@@ -19,24 +35,24 @@ function PantallaExito({ folio, config, onNueva }) {
         >
           <i className="ti ti-circle-check" />
         </div>
-        <h2 className="sp-exito__titulo">Solicitud enviada</h2>
+        <h2 className="sp-exito__titulo">¡Solicitud registrada!</h2>
         <p className="sp-exito__folio">
           Folio: <span style={{ color }}>{folio}</span>
         </p>
         <p className="sp-exito__desc">
-          Tu solicitud fue registrada correctamente. El equipo de Sistemas la
+          Tu reporte fue enviado correctamente. El equipo de Sistemas lo
           atenderá dentro del tiempo de respuesta establecido.
         </p>
         <div className="sp-exito__acciones">
           <button className="sp-btn sp-btn--ghost" onClick={onNueva}>
-            Nueva solicitud
+            <i className="ti ti-plus" /> Nuevo reporte
           </button>
           <button
             className="sp-btn sp-btn--primary"
             style={{ background: color, borderColor: color }}
             onClick={() => navigate("/mesa-de-servicio/mis-solicitudes")}
           >
-            Ver mis solicitudes
+            <i className="ti ti-list" /> Ver mis solicitudes
           </button>
         </div>
       </div>
@@ -50,32 +66,15 @@ function SkeletonForm() {
     <div className="sp-skeleton">
       <div className="sp-skeleton__header" />
       <div className="sp-skeleton__body">
-        <div className="sp-skeleton__line sp-skeleton__line--md" />
-        <div className="sp-skeleton__line sp-skeleton__line--sm" />
-        <div className="sp-skeleton__line sp-skeleton__line--lg" />
-        <div className="sp-skeleton__line sp-skeleton__line--xl" />
-        <div className="sp-skeleton__line sp-skeleton__line--md" />
+        {["md", "sm", "lg", "xl", "md"].map((s, i) => (
+          <div
+            key={i}
+            className={`sp-skeleton__line sp-skeleton__line--${s}`}
+          />
+        ))}
       </div>
     </div>
   );
-}
-
-function formatMinutos(min) {
-  if (!min) return "—";
-  if (min < 60) return `${min} min`;
-  if (min < 1440) return `${Math.round(min / 60)} hrs`;
-  return `${Math.round(min / 1440)} días`;
-}
-
-function formatFechaCorta() {
-  const now = new Date();
-  return now.toLocaleDateString("es-MX", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 /* ─── Stepper ────────────────────────────────────────────────────── */
@@ -90,26 +89,24 @@ function Stepper({ paso, color }) {
         return (
           <div key={label} className="sp-stepper__item">
             <div
-              className={`sp-stepper__circle ${done ? "sp-stepper__circle--done" : ""} ${active ? "sp-stepper__circle--active" : ""}`}
+              className={`sp-stepper__circle${done ? " sp-stepper__circle--done" : ""}${active ? " sp-stepper__circle--active" : ""}`}
               style={
-                active
+                done || active
                   ? { background: color, borderColor: color, color: "#fff" }
-                  : done
-                    ? { background: color, borderColor: color, color: "#fff" }
-                    : {}
+                  : {}
               }
             >
               {done ? <i className="ti ti-check" /> : num}
             </div>
             <span
-              className={`sp-stepper__label ${active ? "sp-stepper__label--active" : ""}`}
+              className={`sp-stepper__label${active ? " sp-stepper__label--active" : ""}`}
               style={active ? { color } : {}}
             >
               {label}
             </span>
             {i < pasos.length - 1 && (
               <div
-                className={`sp-stepper__line ${done ? "sp-stepper__line--done" : ""}`}
+                className={`sp-stepper__line${done ? " sp-stepper__line--done" : ""}`}
                 style={done ? { background: color } : {}}
               />
             )}
@@ -121,65 +118,95 @@ function Stepper({ paso, color }) {
 }
 
 /* ─── Upload de evidencia ────────────────────────────────────────── */
-function EvidenciaUpload({ color }) {
-  const [archivo, setArchivo] = useState(null);
+function EvidenciaUpload({ color, archivos, onArchivos }) {
   const [drag, setDrag] = useState(false);
+  const inputRef = useRef(null);
 
-  function handleFile(file) {
-    if (!file) return;
-    setArchivo(file);
+  function agregarArchivos(nuevos) {
+    const lista = Array.from(nuevos).filter((f) => {
+      const ok = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+        "application/pdf",
+      ].includes(f.type);
+      return ok && f.size <= 5 * 1024 * 1024;
+    });
+    // máximo 5 archivos en total
+    onArchivos((prev) => [...prev, ...lista].slice(0, 5));
+  }
+
+  function quitarArchivo(idx) {
+    onArchivos((prev) => prev.filter((_, i) => i !== idx));
   }
 
   function handleDrop(e) {
     e.preventDefault();
     setDrag(false);
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
+    agregarArchivos(e.dataTransfer.files);
   }
 
   return (
-    <div
-      className={`sp-evidencia ${drag ? "sp-evidencia--drag" : ""}`}
-      style={drag ? { borderColor: color } : {}}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDrag(true);
-      }}
-      onDragLeave={() => setDrag(false)}
-      onDrop={handleDrop}
-    >
-      {archivo ? (
-        <div className="sp-evidencia__preview">
-          <i className="ti ti-file-check" style={{ color }} />
-          <span className="sp-evidencia__nombre">{archivo.name}</span>
-          <button
-            type="button"
-            className="sp-evidencia__quitar"
-            onClick={() => setArchivo(null)}
-          >
-            <i className="ti ti-x" />
-          </button>
+    <div className="sp-evidencia-wrap">
+      <div
+        className={`sp-evidencia${drag ? " sp-evidencia--drag" : ""}`}
+        style={drag ? { borderColor: color } : {}}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDrag(true);
+        }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={handleDrop}
+        onClick={() => inputRef.current?.click()}
+      >
+        <i className="ti ti-cloud-upload sp-evidencia__icon" />
+        <p className="sp-evidencia__texto">
+          Arrastra una imagen o captura de pantalla
+        </p>
+        <p className="sp-evidencia__hint">
+          PNG, JPG · Máx. 5 MB · hasta 5 archivos
+        </p>
+        <button
+          type="button"
+          className="sp-evidencia__btn"
+          style={{ borderColor: color, color }}
+          onClick={(e) => {
+            e.stopPropagation();
+            inputRef.current?.click();
+          }}
+        >
+          <i className="ti ti-upload" />
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*,.pdf"
+          multiple
+          style={{ display: "none" }}
+          onChange={(e) => agregarArchivos(e.target.files)}
+        />
+      </div>
+
+      {archivos.length > 0 && (
+        <div className="sp-archivos-lista">
+          {archivos.map((f, i) => (
+            <div key={i} className="sp-archivo-item">
+              <i className="ti ti-file-check" style={{ color }} />
+              <span className="sp-archivo-nombre">{f.name}</span>
+              <span className="sp-archivo-size">
+                {(f.size / 1024).toFixed(0)} KB
+              </span>
+              <button
+                type="button"
+                className="sp-archivo-quitar"
+                onClick={() => quitarArchivo(i)}
+              >
+                <i className="ti ti-x" />
+              </button>
+            </div>
+          ))}
         </div>
-      ) : (
-        <>
-          <i className="ti ti-cloud-upload sp-evidencia__icon" />
-          <p className="sp-evidencia__texto">
-            Arrastra una imagen o captura de pantalla
-          </p>
-          <p className="sp-evidencia__hint">PNG, JPG · Máx. 5 MB</p>
-          <label
-            className="sp-evidencia__btn"
-            style={{ borderColor: color, color }}
-          >
-            <i className="ti ti-upload" />
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              style={{ display: "none" }}
-              onChange={(e) => handleFile(e.target.files[0])}
-            />
-          </label>
-        </>
       )}
     </div>
   );
@@ -196,24 +223,26 @@ export default function SolicitudPage() {
   const [descripcion, setDescripcion] = useState("");
   const [prioridad, setPrioridad] = useState(null);
   const [prioridadObj, setPrioridadObj] = useState(null);
+  const [archivos, setArchivos] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
+  const [errores, setErrores] = useState({}); // { titulo, descripcion, general }
   const [folio, setFolio] = useState(null);
   const [fechaActual] = useState(formatFechaCorta());
 
+  /* Reset al cambiar slug */
   useEffect(() => {
     setTitulo("");
     setDescripcion("");
     setPrioridad(null);
     setPrioridadObj(null);
-    setSubmitError(null);
+    setArchivos([]);
+    setErrores({});
     setFolio(null);
   }, [slug]);
 
   useEffect(() => {
-    if (config?.comportamiento?.tituloAutofill) {
+    if (config?.comportamiento?.tituloAutofill)
       setTitulo(config.comportamiento.tituloAutofill);
-    }
   }, [config]);
 
   useEffect(() => {
@@ -223,37 +252,66 @@ export default function SolicitudPage() {
     }
   }, [config]);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setSubmitting(true);
-    setSubmitError(null);
+  /* ── Validación frontend ── */
+  function validar() {
+    const e = {};
+    if (!titulo.trim()) e.titulo = "El título del incidente es obligatorio.";
+    if (!descripcion.trim())
+      e.descripcion = "Por favor describe el problema antes de enviar.";
+    return e;
+  }
 
+  /* ── Submit ── */
+  async function handleSubmit(ev) {
+    ev?.preventDefault();
+    const e = validar();
+    if (Object.keys(e).length) {
+      setErrores(e);
+      return;
+    }
+
+    setSubmitting(true);
+    setErrores({});
     const token = localStorage.getItem("fabpsa_token");
 
     try {
-      const res = await fetch("/api/solicitudes", {
+      // Usamos FormData para enviar archivos + campos juntos
+      const fd = new FormData();
+      fd.append("slug", slug);
+      fd.append("titulo", titulo.trim());
+      fd.append("descripcion", descripcion.trim());
+      if (prioridad) fd.append("idPrioridad", prioridad);
+      archivos.forEach((f) => fd.append("archivos", f));
+
+      const API_BASE =
+        window.location.hostname === "192.168.16.198"
+          ? "http://192.168.16.198:3001"
+          : "";
+
+      const res = await fetch(`${API_BASE}/api/solicitudes`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          slug,
-          titulo: titulo.trim(),
-          descripcion: descripcion.trim(),
-          idPrioridad: prioridad,
-        }),
+        headers: { Authorization: `Bearer ${token}` },
+        // NO pongas Content-Type — el browser lo pone con el boundary correcto
+        body: fd,
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.message ?? `HTTP ${res.status}`);
+        setErrores({
+          general:
+            data.message ??
+            "Ocurrió un problema al enviar tu solicitud. Intenta de nuevo.",
+        });
+        return;
       }
 
-      const data = await res.json();
       setFolio(data.folio);
-    } catch (err) {
-      setSubmitError(err.message);
+    } catch {
+      setErrores({
+        general:
+          "No se pudo conectar con el servidor. Verifica tu conexión e intenta de nuevo.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -263,11 +321,13 @@ export default function SolicitudPage() {
     setFolio(null);
     setTitulo("");
     setDescripcion("");
+    setArchivos([]);
+    setErrores({});
     setPrioridad(config?.prioridadDefault?.idPrioridad ?? null);
     setPrioridadObj(config?.prioridadDefault ?? null);
-    setSubmitError(null);
   }
 
+  /* ── Estados de carga ── */
   if (loading)
     return (
       <div className="sp-wrapper">
@@ -275,7 +335,7 @@ export default function SolicitudPage() {
       </div>
     );
 
-  if (error) {
+  if (error)
     return (
       <div className="sp-wrapper">
         <div className="sp-error">
@@ -287,11 +347,10 @@ export default function SolicitudPage() {
         </div>
       </div>
     );
-  }
 
   if (!config) return null;
 
-  if (folio) {
+  if (folio)
     return (
       <div className="sp-wrapper">
         <PantallaExito
@@ -301,19 +360,14 @@ export default function SolicitudPage() {
         />
       </div>
     );
-  }
 
+  /* ── Alias ── */
   const color = config.colorPrimario;
   const colorBg = `${color}15`;
   const mostrarPrio = config.comportamiento?.mostrarPrioridad;
   const autofill = !!config.comportamiento?.tituloAutofill;
   const sla = config.prioridadDefault;
   const form = config.form ?? {};
-
-  /* Determina el paso del stepper: si hay autofill = ya pasó categoría */
-  const paso = autofill ? 2 : 2;
-
-  /* Prioridad activa para el resumen */
   const prioActiva = prioridadObj ?? sla;
 
   return (
@@ -332,7 +386,7 @@ export default function SolicitudPage() {
         </span>
       </nav>
 
-      {/* ── Header: icono + título + folio + stepper ── */}
+      {/* ── Header ── */}
       <div className="sp-header-bar">
         <div className="sp-header-bar__left">
           <div
@@ -359,7 +413,7 @@ export default function SolicitudPage() {
             <i className="ti ti-hash" /> Folio asignado
           </span>
           <span className="sp-header-bar__folio-num" style={{ color }}>
-            {folio ?? "—"}
+            —
           </span>
           <span className="sp-header-bar__folio-hint">
             Generado automáticamente al enviar
@@ -368,16 +422,15 @@ export default function SolicitudPage() {
       </div>
 
       {/* ── Stepper ── */}
-      <Stepper paso={paso} color={color} />
+      <Stepper paso={2} color={color} />
 
-      {/* ── Layout principal ── */}
+      {/* ── Layout ── */}
       <div className="sp-layout">
-        {/* ══ COLUMNA IZQUIERDA: formulario + evidencia ══ */}
+        {/* ══ COLUMNA PRINCIPAL ══ */}
         <div className="sp-col-main">
-          {/* Formulario */}
           <div className="sp-card">
-            <form className="sp-form" onSubmit={handleSubmit}>
-              {/* Categoría chip (si tiene autofill, mostrar la cat seleccionada) */}
+            <div className="sp-form-inner">
+              {/* Chip categoría */}
               {autofill && (
                 <div
                   className="sp-cat-chip"
@@ -387,18 +440,20 @@ export default function SolicitudPage() {
                     borderColor: `${color}40`,
                   }}
                 >
-                  <i className={`ti ${config.icono ?? "ti-tag"}`} />
+                  <i className={`ti ${config.icono ?? "ti-tag"}`} />{" "}
                   {config.nombre}
                 </div>
               )}
 
-              {/* Título del problema */}
               <div className="sp-section-title">Cuéntanos qué está pasando</div>
               {form.descripcion && (
                 <p className="sp-section-hint">{form.descripcion}</p>
               )}
 
-              <div className="sp-field">
+              {/* Título */}
+              <div
+                className={`sp-field${errores.titulo ? " sp-field--error" : ""}`}
+              >
                 <label className="sp-label" htmlFor="sp-titulo">
                   Título del problema <span className="sp-required">*</span>
                 </label>
@@ -407,13 +462,14 @@ export default function SolicitudPage() {
                   className="sp-input"
                   type="text"
                   value={titulo}
-                  onChange={(e) => setTitulo(e.target.value)}
+                  onChange={(e) => {
+                    setTitulo(e.target.value);
+                    setErrores((p) => ({ ...p, titulo: "" }));
+                  }}
                   placeholder={
-                    form.placeholderTitulo ??
-                    "Describe brevemente el problema o solicitud"
+                    form.placeholderTitulo ?? "Describe brevemente el problema"
                   }
                   maxLength={120}
-                  required
                   readOnly={autofill}
                   style={
                     autofill
@@ -421,9 +477,18 @@ export default function SolicitudPage() {
                       : {}
                   }
                 />
+                {errores.titulo && (
+                  <span className="sp-field-error">
+                    <i className="ti ti-alert-circle" />
+                    {errores.titulo}
+                  </span>
+                )}
               </div>
 
-              <div className="sp-field">
+              {/* Descripción */}
+              <div
+                className={`sp-field${errores.descripcion ? " sp-field--error" : ""}`}
+              >
                 <label className="sp-label" htmlFor="sp-desc">
                   Descripción detallada <span className="sp-required">*</span>
                 </label>
@@ -431,21 +496,33 @@ export default function SolicitudPage() {
                   id="sp-desc"
                   className="sp-textarea"
                   value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
+                  onChange={(e) => {
+                    setDescripcion(e.target.value);
+                    setErrores((p) => ({ ...p, descripcion: "" }));
+                  }}
                   placeholder={
                     form.placeholderDesc ??
                     "¿Qué ocurrió? ¿Desde cuándo? ¿Qué equipo o sistema está afectado?"
                   }
-                  rows={6}
+                  rows={4}
                   maxLength={1000}
-                  required
                 />
-                <span className="sp-char-count">
-                  {descripcion.length} / 1000 caracteres
-                </span>
+                <div className="sp-field-footer">
+                  {errores.descripcion ? (
+                    <span className="sp-field-error">
+                      <i className="ti ti-alert-circle" />
+                      {errores.descripcion}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="sp-char-count">
+                    {descripcion.length} / 1000
+                  </span>
+                </div>
               </div>
 
-              {/* Selector de prioridad */}
+              {/* Prioridad */}
               {mostrarPrio && config.prioridades?.length > 0 && (
                 <div className="sp-field">
                   <label className="sp-label">
@@ -458,7 +535,7 @@ export default function SolicitudPage() {
                         <button
                           key={p.idPrioridad}
                           type="button"
-                          className={`sp-prio-btn ${active ? "sp-prio-btn--active" : ""}`}
+                          className={`sp-prio-btn${active ? " sp-prio-btn--active" : ""}`}
                           style={
                             active
                               ? {
@@ -485,7 +562,6 @@ export default function SolicitudPage() {
                       );
                     })}
                   </div>
-                  {/* SLA de la prioridad seleccionada */}
                   {prioActiva && (
                     <div
                       className="sp-sla-inline"
@@ -500,7 +576,7 @@ export default function SolicitudPage() {
                       />
                       <span style={{ color: prioActiva.color ?? color }}>
                         Tiempo de respuesta estimado para prioridad{" "}
-                        {prioActiva.nombre}&nbsp;&nbsp;
+                        {prioActiva.nombre}&nbsp;·&nbsp;
                         <strong>
                           {formatMinutos(prioActiva.slaRespuestaMin)}
                         </strong>
@@ -518,49 +594,53 @@ export default function SolicitudPage() {
                 </div>
               )}
 
-              {/* Error */}
-              {submitError && (
+              {/* Evidencia — dentro del card, compacta */}
+              <div className="sp-field">
+                <label className="sp-label">
+                  Evidencia <span className="sp-label-opt">(opcional)</span>
+                </label>
+                <EvidenciaUpload
+                  color={color}
+                  archivos={archivos}
+                  onArchivos={setArchivos}
+                />
+              </div>
+
+              {/* Error general */}
+              {errores.general && (
                 <div className="sp-submit-error">
-                  <i className="ti ti-alert-circle" />
-                  {submitError}
+                  <i className="ti ti-alert-circle" /> {errores.general}
                 </div>
               )}
-            </form>
-          </div>
 
-          {/* Evidencia */}
-          <div className="sp-card sp-card--evidencia">
-            <div className="sp-card__section-label">Evidencia (opcional)</div>
-            <EvidenciaUpload color={color} />
-          </div>
-
-          {/* Botones */}
-          <div className="sp-footer-btns">
-            <button
-              type="button"
-              className="sp-btn sp-btn--ghost"
-              onClick={() => navigate(-1)}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              form="sp-main-form"
-              className="sp-btn sp-btn--primary"
-              disabled={submitting}
-              style={{ background: color, borderColor: color }}
-              onClick={handleSubmit}
-            >
-              {submitting ? (
-                <>
-                  <i className="ti ti-loader-2 sp-spin" /> Enviando…
-                </>
-              ) : (
-                <>
-                  <i className="ti ti-send" /> Enviar reporte
-                </>
-              )}
-            </button>
+              {/* Botones dentro del card */}
+              <div className="sp-footer-btns">
+                <button
+                  type="button"
+                  className="sp-btn sp-btn--ghost"
+                  onClick={() => navigate(-1)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="sp-btn sp-btn--primary"
+                  disabled={submitting}
+                  style={{ background: color, borderColor: color }}
+                  onClick={handleSubmit}
+                >
+                  {submitting ? (
+                    <>
+                      <i className="ti ti-loader-2 sp-spin" /> Enviando…
+                    </>
+                  ) : (
+                    <>
+                      <i className="ti ti-send" /> Enviar reporte
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -579,12 +659,10 @@ export default function SolicitudPage() {
                   ● Abierto
                 </span>
               </div>
-
               <div className="sp-resumen-row">
                 <span className="sp-resumen-label">Categoría</span>
                 <span className="sp-resumen-val">{config.nombre}</span>
               </div>
-
               {prioActiva && (
                 <div className="sp-resumen-row">
                   <span className="sp-resumen-label">Prioridad</span>
@@ -599,27 +677,20 @@ export default function SolicitudPage() {
                   </span>
                 </div>
               )}
-
               <div className="sp-resumen-row">
                 <span className="sp-resumen-label">Sitio</span>
                 <span className="sp-resumen-val">{user?.sitio ?? "—"}</span>
               </div>
-
               <div className="sp-resumen-row">
                 <span className="sp-resumen-label">Fecha</span>
                 <span className="sp-resumen-val">{fechaActual}</span>
               </div>
             </div>
-
-            {/* Resolución estimada */}
             {sla && (
-              <div
-                className="sp-resolucion"
-                style={{ borderTopColor: "var(--border)" }}
-              >
+              <div className="sp-resolucion">
                 <div className="sp-resolucion__head" style={{ color }}>
-                  <i className="ti ti-clock" style={{ color }} />
-                  Resolución estimada
+                  <i className="ti ti-clock" style={{ color }} /> Resolución
+                  estimada
                 </div>
                 <div className="sp-resolucion__val">
                   Antes de las {formatMinutos(sla.slaResolucionMin)}

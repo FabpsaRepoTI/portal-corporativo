@@ -27,6 +27,7 @@ export default function MesaDeServicioPage() {
       : navigate(`/mesa-de-servicio/solicitud/${s.id}`);
   const handleQuickClick = (item) => {
     if (item.type === "route") navigate(item.route);
+    if (item.type === "link") navigate(item.to);
     if (item.type === "incidente") setIncidentesOpen(true);
   };
   const handleChipClick = (chip) =>

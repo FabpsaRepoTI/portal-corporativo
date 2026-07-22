@@ -1,0 +1,1046 @@
+/* ═══════════════════════════════════════════════════════════════
+   MisSolicitudesPage.css — ADN visual consistente con MesaAdmin
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Reset & base ─────────────────────────────────────────────── */
+.msp-page {
+  min-height: 100vh;
+  background: var(--bg-base);
+  color: var(--text-body);
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-size: 13px;
+}
+
+.msp-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+
+/* ── Breadcrumb ───────────────────────────────────────────────── */
+.msp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  cursor: pointer;
+  width: fit-content;
+}
+.msp-breadcrumb:hover {
+  color: var(--text-body);
+}
+.msp-breadcrumb svg {
+  flex-shrink: 0;
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+.msp-header {
+  margin-bottom: 1.75rem;
+}
+.msp-header h1 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0 0 0.3rem;
+  letter-spacing: -0.02em;
+}
+.msp-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ── KPI strip ────────────────────────────────────────────────── */
+.msp-kpi-strip {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.msp-kpi-card {
+  flex: 1;
+  min-width: 140px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+  white-space: nowrap;
+}
+.msp-kpi-card:hover {
+  border-color: rgba(76, 201, 166, 0.4);
+  box-shadow: 0 0 0 3px rgba(76, 201, 166, 0.07);
+}
+.msp-kpi-card.active {
+  border-color: var(--primary);
+  background: rgba(76, 201, 166, 0.06);
+}
+
+.msp-kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.msp-kpi-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.msp-kpi-num {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-h);
+  line-height: 1;
+}
+.msp-kpi-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── Tabla container ──────────────────────────────────────────── */
+.msp-table-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Toolbar ──────────────────────────────────────────────────── */
+.msp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.msp-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 320px;
+}
+.msp-search-icon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  pointer-events: none;
+}
+.msp-search-input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-body);
+  font-size: 12.5px;
+  padding: 0.45rem 0.75rem 0.45rem 2.1rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.18s;
+}
+.msp-search-input::placeholder {
+  color: var(--text-faint);
+}
+.msp-search-input:focus {
+  border-color: var(--primary);
+}
+
+.msp-filter-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-body);
+  font-size: 12.5px;
+  padding: 0.45rem 1.8rem 0.45rem 0.75rem;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  transition: border-color 0.18s;
+}
+.msp-filter-select:focus {
+  border-color: var(--primary);
+}
+
+.msp-toolbar-spacer {
+  flex: 1;
+}
+
+.msp-btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+.msp-btn-export:hover {
+  color: var(--text-h);
+  border-color: var(--text-muted);
+}
+
+/* ── Tabla head ───────────────────────────────────────────────── */
+.msp-thead {
+  display: grid;
+  grid-template-columns: 28px 52px 1fr 1fr 140px 110px 140px 120px 120px 32px;
+  align-items: center;
+  padding: 0 1rem;
+  height: 38px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+
+.msp-th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+/* ── Filas ────────────────────────────────────────────────────── */
+.msp-tbody {
+  display: flex;
+  flex-direction: column;
+}
+
+.msp-row-wrap {
+  border-bottom: 1px solid var(--border);
+}
+.msp-row-wrap:last-child {
+  border-bottom: none;
+}
+
+.msp-row {
+  display: grid;
+  grid-template-columns: 28px 52px 1fr 1fr 140px 110px 140px 120px 120px 32px;
+  align-items: center;
+  padding: 0 1rem;
+  min-height: 58px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.msp-row:hover {
+  background: var(--bg-hover, rgba(76, 201, 166, 0.04));
+}
+.msp-row.expanded {
+  background: rgba(76, 201, 166, 0.04);
+}
+
+.msp-td {
+  font-size: 13px;
+}
+
+/* Toggle arrow */
+.msp-toggle {
+  display: flex;
+  align-items: center;
+  color: var(--text-faint);
+  transition:
+    transform 0.18s,
+    color 0.15s;
+}
+.msp-row:hover .msp-toggle {
+  color: var(--text-muted);
+}
+.msp-toggle.open {
+  transform: rotate(90deg);
+  color: var(--primary);
+}
+
+/* Icono servicio */
+.msp-svc-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Servicio + descripción */
+.msp-svc-name {
+  font-weight: 600;
+  color: var(--text-h);
+  font-size: 13px;
+  line-height: 1.3;
+}
+.msp-svc-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Folio */
+.msp-folio {
+  font-family: "JetBrains Mono", "Fira Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7c8cf8;
+  cursor: pointer;
+}
+.msp-folio:hover {
+  text-decoration: underline;
+}
+
+/* Chips */
+.msp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.msp-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* SLA */
+.msp-sla {
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.msp-sla.ok {
+  color: #4cc9a6;
+}
+.msp-sla.warn {
+  color: #f59e0b;
+}
+.msp-sla.danger {
+  color: #f38ba8;
+}
+.msp-sla.none {
+  color: var(--text-faint);
+}
+
+/* Fecha */
+.msp-fecha {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* Arrow right */
+.msp-arrow {
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+}
+
+/* ── Panel expandido (Master/Detail) ──────────────────────────── */
+.msp-detail {
+  border-top: 1px solid var(--border);
+  background: var(--bg-elevated);
+  animation: msp-expand 0.2s ease;
+  overflow: hidden;
+}
+@keyframes msp-expand {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pestañas */
+.msp-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+
+.msp-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.7rem 1rem;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s;
+  margin-bottom: -1px;
+}
+.msp-tab:hover {
+  color: var(--text-body);
+}
+.msp-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+.msp-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: rgba(76, 201, 166, 0.15);
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Contenido panel */
+.msp-tab-content {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* ── Info general ─────────────────────────────────────────────── */
+.msp-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.msp-detail-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.msp-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.msp-detail-label {
+  font-size: 11px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.msp-detail-value {
+  font-size: 13px;
+  color: var(--text-body);
+  font-weight: 500;
+}
+
+.msp-descripcion-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 13px;
+  color: var(--text-body);
+  line-height: 1.6;
+}
+
+/* Asignación card */
+.msp-asignacion-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+.msp-asignacion-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+.msp-tech-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+.msp-tech-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: rgba(124, 140, 248, 0.2);
+  color: #7c8cf8;
+}
+.msp-tech-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.msp-tech-role {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Tiempos card */
+.msp-tiempos-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+.msp-tiempos-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+.msp-tiempo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+.msp-tiempo-row:last-child {
+  border-bottom: none;
+}
+.msp-tiempo-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.msp-tiempo-val {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-body);
+}
+
+/* ── Evidencias ───────────────────────────────────────────────── */
+.msp-evidencias-grid {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.msp-evidencia-thumb {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+}
+.msp-evidencia-thumb:hover {
+  border-color: var(--primary);
+}
+.msp-evidencia-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.msp-evidencia-file {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg-elevated);
+  cursor: pointer;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+  max-width: 120px;
+}
+.msp-evidencia-file:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.msp-evidencia-file span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px;
+  display: block;
+  text-align: center;
+}
+
+.msp-evidencias-empty {
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+/* Lightbox */
+.msp-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+.msp-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.msp-lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* ── SLA tab ──────────────────────────────────────────────────── */
+.msp-sla-content {
+  grid-column: 1 / -1;
+}
+.msp-sla-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.msp-sla-metric {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+}
+.msp-sla-metric-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+.msp-sla-metric-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-h);
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+.msp-sla-metric-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Barra de progreso SLA */
+.msp-sla-bar-wrap {
+  margin-top: 0.5rem;
+}
+.msp-sla-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+.msp-sla-bar-track {
+  height: 8px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.msp-sla-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.msp-sla-semaforo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── Comentarios ──────────────────────────────────────────────── */
+.msp-conv-content {
+  grid-column: 1 / -1;
+}
+
+.msp-mensajes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 1rem;
+}
+.msp-mensajes::-webkit-scrollbar {
+  width: 4px;
+}
+.msp-mensajes::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.msp-mensaje {
+  display: flex;
+  flex-direction: column;
+  max-width: 72%;
+}
+.msp-mensaje.tecnico {
+  align-self: flex-start;
+}
+.msp-mensaje.usuario {
+  align-self: flex-end;
+}
+
+.msp-mensaje-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.msp-mensaje.usuario .msp-mensaje-header {
+  flex-direction: row-reverse;
+}
+
+.msp-msg-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.msp-msg-avatar.ti {
+  background: rgba(76, 201, 166, 0.2);
+  color: var(--primary);
+}
+.msp-msg-avatar.usr {
+  background: rgba(124, 140, 248, 0.2);
+  color: #7c8cf8;
+}
+
+.msp-msg-rol-tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.msp-msg-rol-tag.ti {
+  background: rgba(76, 201, 166, 0.12);
+  color: var(--primary);
+}
+.msp-msg-rol-tag.usr {
+  background: rgba(124, 140, 248, 0.12);
+  color: #7c8cf8;
+}
+
+.msp-burbuja {
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-body);
+}
+.msp-mensaje.tecnico .msp-burbuja {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px 12px 12px 12px;
+}
+.msp-mensaje.usuario .msp-burbuja {
+  background: rgba(124, 140, 248, 0.1);
+  border: 1px solid rgba(124, 140, 248, 0.2);
+  border-radius: 12px 4px 12px 12px;
+}
+
+.msp-conv-empty {
+  color: var(--text-faint);
+  font-size: 13px;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+/* Input comentario */
+.msp-conv-actions {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+.msp-conv-actions-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 0.65rem;
+  font-weight: 500;
+}
+.msp-conv-input-row {
+  display: flex;
+  gap: 0.6rem;
+}
+.msp-conv-textarea {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-body);
+  font-size: 13px;
+  padding: 0.55rem 0.8rem;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: border-color 0.18s;
+}
+.msp-conv-textarea::placeholder {
+  color: var(--text-faint);
+}
+.msp-conv-textarea:focus {
+  border-color: var(--primary);
+}
+
+.msp-conv-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.msp-btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-body);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.msp-btn-action:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: rgba(76, 201, 166, 0.06);
+}
+.msp-btn-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.msp-btn-action.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #0f172a;
+  font-weight: 600;
+}
+.msp-btn-action.primary:hover {
+  opacity: 0.88;
+  background: var(--primary);
+}
+.msp-btn-action.danger {
+  color: #f38ba8;
+  border-color: rgba(243, 139, 168, 0.35);
+}
+.msp-btn-action.danger:hover {
+  background: rgba(243, 139, 168, 0.08);
+  border-color: #f38ba8;
+}
+
+/* Acciones de fondo del panel */
+.msp-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-surface);
+  flex-wrap: wrap;
+}
+.msp-detail-actions-label {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-right: 0.25rem;
+}
+
+/* ── Empty / skeleton ─────────────────────────────────────────── */
+.msp-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface) 25%,
+    var(--bg-elevated) 50%,
+    var(--bg-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: msp-shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+@keyframes msp-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.msp-skeleton-row {
+  height: 58px;
+  border-bottom: 1px solid var(--border);
+}
+
+.msp-empty {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  color: var(--text-muted);
+}
+.msp-empty-icon {
+  font-size: 2.5rem;
+  color: var(--text-faint);
+  margin-bottom: 0.75rem;
+}
+.msp-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-body);
+  margin-bottom: 0.3rem;
+}
+.msp-empty-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .msp-thead,
+  .msp-row {
+    grid-template-columns: 28px 44px 1fr 110px 100px 110px 32px;
+  }
+  .msp-th:nth-child(4),
+  .msp-td:nth-child(4),
+  .msp-th:nth-child(7),
+  .msp-td:nth-child(7),
+  .msp-th:nth-child(9),
+  .msp-td:nth-child(9) {
+    display: none;
+  }
+
+  .msp-sla-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .msp-tab-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .msp-inner {
+    padding: 1rem 1rem 3rem;
+  }
+  .msp-kpi-strip {
+    gap: 0.6rem;
+  }
+  .msp-kpi-card {
+    min-width: 110px;
+    padding: 0.75rem;
+  }
+  .msp-thead {
+    display: none;
+  }
+  .msp-row {
+    grid-template-columns: 44px 1fr auto 28px;
+    gap: 0.5rem;
+  }
+  .msp-tab-content {
+    grid-template-columns: 1fr;
+  }
+  .msp-sla-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -224,7 +224,8 @@ export const QUICK_SISTEMAS = [
     icon: "ti-alert-triangle",
     color: "#7c3aed",
     colorBg: "rgba(124,58,237,0.12)",
-    type: "fn",
+    type: "route",
+    route: "/mesa-de-servicio/admin",
   },
   {
     label: "Solicitudes de hardware",
@@ -260,7 +261,8 @@ export const QUICK_USUARIO = [
     icon: "ti-clipboard-list",
     color: "#7c8cf8",
     colorBg: "rgba(124,140,248,0.12)",
-    type: "fn",
+    type: "link",
+    to: "/mesa-de-servicio/mis-solicitudes",
   },
   {
     label: "Base de conocimiento",
