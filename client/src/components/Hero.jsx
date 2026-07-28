@@ -68,19 +68,14 @@ const fechaActual = new Date().toLocaleDateString('es-MX', {
       </div>
 
       <div ref={right.ref} className={`hero-right reveal d2 ${right.visible ? 'visible' : ''}`}>
-        <div className="quote-card">
+        {/*<div className="quote-card">
           <i className="ti ti-quote quote-i" />
-          {/*<p className="quote-text">
-            "La calidad no es un acto, es un hábito.
-            La excelencia no es un destino sino un viaje continuo
-            que nunca tiene fin."
-          </p>*/}
           <p>La primera regla es mantener un espíritu tranquilo. El segundo es mirar las cosas a la cara y conocerlas por lo que son.</p>
           <div className="quote-author">
             <div className="quote-av">AB</div>
             <span className="quote-name">Marco Aurelio</span>
           </div>
-        </div>
+        </div>*/}
       </div>
     </section>
   );

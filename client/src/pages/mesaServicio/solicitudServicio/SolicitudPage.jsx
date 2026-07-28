@@ -214,7 +214,13 @@ function EvidenciaUpload({ color, archivos, onArchivos }) {
 
 /* ─── Componente principal ───────────────────────────────────────── */
 export default function SolicitudPage() {
-  const { slug } = useParams();
+  //const { slug } = useParams();
+  //console.log("Slug:", slug);
+  const params = useParams();
+  const { slug } = params;
+
+  //console.log("PATH:", window.location.pathname);
+  //console.log("PARAMS:", params);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { config, loading, error } = useServicioConfig(slug);

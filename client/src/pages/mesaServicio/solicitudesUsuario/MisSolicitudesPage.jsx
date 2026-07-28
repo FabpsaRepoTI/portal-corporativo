@@ -4,10 +4,12 @@ import { AuthContext } from "../../../context/AuthContext";
 import "./MisSolicitudes.css";
 
 /* ─── Config ──────────────────────────────────────────────────── */
-const API =
+/*const API =
   window.location.hostname === "localhost"
     ? "http://localhost:3001"
-    : "http://192.168.16.198:3002";
+    : "http://192.168.16.198:3001";*/
+
+const API = "";
 
 function authH() {
   const t = localStorage.getItem("fabpsa_token");
@@ -879,15 +881,20 @@ export default function MisSolicitudesPage() {
     <div className="msp-page">
       <div className="msp-inner">
         {/* Breadcrumb */}
-        <div className="msp-breadcrumb" onClick={() => navigate("/")}>
-          <i className="ti ti-arrow-left" style={{ fontSize: "0.85rem" }} />
-          Volver al inicio
-        </div>
 
         {/* Header */}
-        <div className="msp-header">
-          <h1>Mis solicitudes</h1>
-          <p>Consulta el estado y seguimiento de todas tus solicitudes.</p>
+
+        <div className="apps-hero-inner">
+          <button className="apps-back" onClick={() => navigate("/")}>
+            <i className="ti ti-arrow-left" /> Volver al inicio
+          </button>
+          <span className="apps-eyebrow">
+            Consulta el estado y seguimiento de todas tus solicitudes
+          </span>
+          <h1 className="apps-title marg-sub">
+            <em>Mis Solicitudes</em>
+          </h1>
+          <p className="marg-sub"></p>
         </div>
 
         {/* KPI strip */}

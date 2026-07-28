@@ -1,6 +1,7 @@
 const { getPool } = require("../db");
 
-async function crearSolicitud({
+{
+  /*async function crearSolicitud({
   idServicio,
   idPrioridad,
   titulo,
@@ -68,6 +69,93 @@ async function crearSolicitud({
     fechaCreacion: row.fechaCreacion,
     slaRespuestaHrs,
     slaResolucionHrs,
+    fechaLimiteResp,
+    fechaLimiteResol,
+    prioridad,
+    colorHex,
+  };
+}*/
+}
+
+async function crearSolicitud({
+  idServicio,
+  idPrioridad,
+  titulo,
+  descripcion,
+  idUsuario,
+  nombreUsuario,
+  areaUsuario,
+  sitioUsuario,
+}) {
+  const pool = await getPool();
+
+  // 1. Obtener SLA de cat_servicioTI (en minutos)
+  const svcRes = await pool.request().input("idServicio", idServicio).query(`
+    SELECT slaRespuestaMin, slaResolucionMin
+    FROM cat_servicioTI
+    WHERE idServicio = @idServicio
+  `);
+
+  if (!svcRes.recordset.length) throw new Error("Servicio no encontrado");
+
+  const { slaRespuestaMin, slaResolucionMin } = svcRes.recordset[0];
+
+  // 2. Obtener datos de prioridad (solo para metadata de retorno)
+  const prioRes = await pool.request().input("idPrioridad", idPrioridad).query(`
+    SELECT prioridad, colorHex
+    FROM cat_prioridad
+    WHERE idPrioridad = @idPrioridad
+  `);
+
+  if (!prioRes.recordset.length) throw new Error("Prioridad no encontrada");
+  const { prioridad, colorHex } = prioRes.recordset[0];
+
+  // 3. Calcular fechas límite en minutos
+  const ahora = new Date();
+  const fechaLimiteResp = slaRespuestaMin
+    ? new Date(ahora.getTime() + slaRespuestaMin * 60000)
+    : null;
+  const fechaLimiteResol = slaResolucionMin
+    ? new Date(ahora.getTime() + slaResolucionMin * 60000)
+    : null;
+
+  // 4. INSERT
+  const insertRes = await pool
+    .request()
+    .input("idServicio", idServicio)
+    .input("idPrioridad", idPrioridad)
+    .input("titulo", titulo)
+    .input("descripcion", descripcion || "")
+    .input("idUsuario", idUsuario)
+    .input("nombreUsuario", nombreUsuario)
+    .input("areaUsuario", areaUsuario || "")
+    .input("sitioUsuario", sitioUsuario || "")
+    .input("idEstatus", 1)
+    .input("slaRespuestaHrs", slaRespuestaMin) // guardamos minutos en la columna existente
+    .input("slaResolucionHrs", slaResolucionMin) // ídem
+    .input("fechaLimiteResp", fechaLimiteResp)
+    .input("fechaLimiteResol", fechaLimiteResol).query(`
+      INSERT INTO solicitudTI
+        (idServicio, idPrioridad, titulo, descripcion,
+         idUsuario, nombreUsuario, areaUsuario, sitioUsuario,
+         idEstatus, slaRespuestaHrs, slaResolucionHrs,
+         fechaLimiteResp, fechaLimiteResol)
+      OUTPUT INSERTED.idSolicitud, INSERTED.folio, INSERTED.fechaCreacion
+      VALUES
+        (@idServicio, @idPrioridad, @titulo, @descripcion,
+         @idUsuario, @nombreUsuario, @areaUsuario, @sitioUsuario,
+         @idEstatus, @slaRespuestaHrs, @slaResolucionHrs,
+         @fechaLimiteResp, @fechaLimiteResol)
+    `);
+
+  const row = insertRes.recordset[0];
+
+  return {
+    idSolicitud: row.idSolicitud,
+    folio: row.folio,
+    fechaCreacion: row.fechaCreacion,
+    slaRespuestaHrs: slaRespuestaMin,
+    slaResolucionHrs: slaResolucionMin,
     fechaLimiteResp,
     fechaLimiteResol,
     prioridad,

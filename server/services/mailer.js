@@ -202,6 +202,7 @@ async function enviarCorreoSolicitudHardware({
   </table>
 </body>
 </html>`;
+
   await transporter.sendMail({
     from: '"Portal FABPSA" <notificaciones@fabpsa.com.mx>',
     to: DESTINATARIO_TI,
@@ -210,15 +211,14 @@ async function enviarCorreoSolicitudHardware({
   });
 }
 
-// ── Agregar esta función a tu mailer.js existente ────────────────────────────
-// Exporta: enviarCorreoSolicitudTI
-
 const PRIORIDAD_EMOJI = {
   Baja: { emoji: "🟢", color: "#10b981" },
   Media: { emoji: "🟡", color: "#f59e0b" },
   Alta: { emoji: "🟠", color: "#f97316" },
   Crítica: { emoji: "🔴", color: "#ef4444" },
 };
+
+
 
 async function enviarCorreoSolicitudTI({
   folio,
@@ -412,7 +412,6 @@ async function enviarCorreoSolicitudTI({
 </body>
 </html>`;
 
-  // Email a TI
   await transporter.sendMail({
     from: '"Portal FABPSA" <notificaciones@fabpsa.com.mx>',
     to: DESTINATARIO_TI,
@@ -420,7 +419,6 @@ async function enviarCorreoSolicitudTI({
     html,
   });
 
-  // Email al solicitante (si tiene correo)
   if (correoSolicitante) {
     const htmlSolicitante = html.replace(
       "Se ha registrado una nueva solicitud de soporte en el Portal Corporativo FABPSA.",

@@ -157,7 +157,7 @@ export default function Navbar() {
       </button>*/}
 
       <li>
-        <button
+        {/*<button
           className="directory-btn"
           onClick={() =>
             window.open(
@@ -169,7 +169,7 @@ export default function Navbar() {
         >
           <i className="ti ti-address-book" />
           Directorio Corporativo
-        </button>
+        </button>*/}
       </li>
 
       {/*<div className="navbar-news">

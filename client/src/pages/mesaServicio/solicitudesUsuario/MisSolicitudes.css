@@ -1044,3 +1044,7 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.marg-sub {
+  margin-bottom: 50px;
+}

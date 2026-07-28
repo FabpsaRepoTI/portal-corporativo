@@ -1,0 +1,775 @@
+/* ═══════════════════════════════════════════════════
+   MESA DE SERVICIO v3
+   ═══════════════════════════════════════════════════ */
+
+.mds3-root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 32px 48px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* SALUDO */
+.mds3-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition:
+    color 0.13s,
+    border-color 0.13s;
+}
+.mds3-back:hover {
+  color: var(--text-h);
+}
+.mds3-greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mds3-greeting-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+.mds3-greeting-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── FILA 1: hero + accesos rápidos ── */
+.mds3-top-row {
+  display: grid;
+  grid-template-columns: 1fr 272px;
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* HERO */
+.mds3-hero {
+  position: relative;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 28px 28px 24px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+.mds3-hero::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #7c3aed, #a78bfa);
+  border-radius: 16px 0 0 16px;
+}
+.mds3-hero-ilu {
+  width: 130px;
+  height: 130px;
+  flex-shrink: 0;
+}
+.mds3-hero-ilu svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mds3-hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.mds3-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #7c3aed;
+}
+.mds3-hero-eyebrow i {
+  font-size: 9px;
+}
+.mds3-hero-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+.mds3-hero-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.6;
+}
+.mds3-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 2px;
+  width: fit-content;
+  transition:
+    background 0.15s,
+    transform 0.12s;
+}
+.mds3-hero-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-1px);
+}
+.mds3-hero-btn i {
+  font-size: 15px;
+}
+.mds3-hero-btn-chev {
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.mds3-hero-feats {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
+  min-width: 185px;
+}
+.mds3-hero-feat {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+.mds3-hf-ico {
+  font-size: 15px;
+  color: #7c8cf8;
+  margin-top: 1px;
+  flex-shrink: 0;
+  width: 16px;
+}
+.mds3-hf-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.3;
+}
+.mds3-hf-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+/* ACCESOS RÁPIDOS */
+.mds3-quick {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.mds3-quick-hdr {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.mds3-quick-item {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  gap: 11px;
+  flex: 1;
+  width: 100%;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  transition: background 0.12s;
+}
+.mds3-quick-item:last-child {
+  border-bottom: none;
+}
+.mds3-quick-item:hover {
+  background: var(--bg-elevated, rgba(0, 0, 0, 0.03));
+}
+.mds3-quick-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.mds3-quick-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+.mds3-quick-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-h);
+  line-height: 1.3;
+}
+.mds3-quick-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+.mds3-quick-arrow {
+  font-size: 12px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+/* ACCORDION */
+.mds3-accordion {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px 18px;
+  animation: mds3-in 0.17s ease;
+}
+@keyframes mds3-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.mds3-accordion-hdr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.mds3-accordion-ico {
+  font-size: 17px;
+  color: #7c8cf8;
+  flex-shrink: 0;
+}
+.mds3-accordion-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.mds3-accordion-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+.mds3-acc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.mds3-acc-chip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  background: var(--bg-elevated, var(--bg-base));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+.mds3-acc-chip:hover {
+  background: rgba(124, 140, 248, 0.06);
+  border-color: rgba(124, 140, 248, 0.3);
+}
+.mds3-acc-ico {
+  font-size: 14px;
+  color: #7c8cf8;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+.mds3-acc-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-h);
+  flex: 1;
+  line-height: 1.3;
+}
+.mds3-acc-arrow {
+  font-size: 11px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  transition: transform 0.12s;
+}
+.mds3-acc-chip:hover .mds3-acc-arrow {
+  transform: translateX(2px);
+  color: #7c8cf8;
+}
+
+/* SECTION LABEL */
+.mds3-section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: -4px;
+}
+
+/* ── GRID 6 COLUMNAS ── */
+.mds3-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.mds3-svc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 16px 14px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  transition:
+    box-shadow 0.14s,
+    transform 0.12s;
+}
+.mds3-svc:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.09);
+  transform: translateY(-2px);
+}
+
+.mds3-svc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.mds3-svc-ico {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.mds3-svc-arrow {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 2px;
+  transition: transform 0.13s;
+}
+.mds3-svc:hover .mds3-svc-arrow {
+  transform: translateX(2px);
+}
+
+.mds3-svc-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.3;
+  margin-bottom: 5px;
+}
+.mds3-svc-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 99px;
+  width: fit-content;
+}
+.mds3-svc-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.mds3-svc-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 0 0 12px 12px;
+  opacity: 0;
+  transition: opacity 0.14s;
+}
+.mds3-svc:hover .mds3-svc-line {
+  opacity: 1;
+}
+
+/* FOOTER */
+.mds3-footer {
+  display: flex;
+  align-items: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 28px;
+  margin-top: 4px;
+}
+.mds3-footer-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  flex: 1;
+}
+.mds3-footer-div {
+  width: 1px;
+  height: 40px;
+  background: var(--border);
+  margin: 0 20px;
+  flex-shrink: 0;
+}
+.mds3-footer-ico {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.mds3-footer-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.3;
+}
+.mds3-footer-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  line-height: 1.4;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .mds3-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .mds3-hero {
+    grid-template-columns: 110px 1fr;
+  }
+  .mds3-hero-feats {
+    display: none;
+  }
+}
+@media (max-width: 860px) {
+  .mds3-top-row {
+    grid-template-columns: 1fr;
+  }
+  .mds3-quick {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .mds3-quick-item {
+    flex: 1;
+    min-width: 130px;
+    border-bottom: none;
+    border-right: 1px solid var(--border);
+    padding: 14px 12px;
+  }
+  .mds3-quick-item:last-child {
+    border-right: none;
+  }
+}
+@media (max-width: 640px) {
+  .mds3-root {
+    padding: 14px 14px 36px;
+  }
+  .mds3-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mds3-acc-grid {
+    grid-template-columns: 1fr;
+  }
+  .mds3-hero {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  .mds3-hero-ilu {
+    display: none;
+  }
+  .mds3-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+  }
+  .mds3-footer-div {
+    display: none;
+  }
+}
+@media (max-width: 420px) {
+  .mds3-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MESA DE SERVICIO ADMIN — Shell con Tab Navigation
+   Prefijo: .mds-*
+   No modifica ningún estilo existente (.mha-* ni .hws-*)
+═══════════════════════════════════════════════════════════════════ */
+
+.mds-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* ── Tab Bar ─────────────────────────────────────────────────────── */
+.mds-tabbar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0; /* si el layout tiene scroll en el viewport */
+  z-index: 10;
+}
+
+.mds-tabbar-inner {
+  display: flex;
+  gap: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Tab item ────────────────────────────────────────────────────── */
+.mds-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px 13px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  transition:
+    color 0.18s,
+    border-color 0.18s,
+    background 0.18s;
+  position: relative;
+  white-space: nowrap;
+}
+
+.mds-tab:hover:not(.mds-tab--active) {
+  color: var(--text-body);
+  background: var(--bg-hover);
+}
+
+.mds-tab--active {
+  color: var(--tab-color, var(--primary));
+  border-bottom-color: var(--tab-color, var(--primary));
+  background: var(--tab-bg, transparent);
+  font-weight: 600;
+}
+
+.mds-tab-icon {
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.mds-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  background: color-mix(
+    in srgb,
+    var(--tab-color, var(--primary)) 14%,
+    transparent
+  );
+  color: var(--tab-color, var(--primary));
+  line-height: 1;
+}
+
+/* ── Contenido ───────────────────────────────────────────────────── */
+.mds-content {
+  flex: 1;
+  animation: mdsSlideIn 0.2s ease both;
+}
+
+@keyframes mdsSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Ajuste: Hardware page ya no necesita su propio max-width wrapper
+   porque el shell lo provee. El hws-wrap sigue siendo válido para
+   su padding interno — no se toca.
+─────────────────────────────────────────────────────────────────── */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — MESA DE SERVICIO
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .mds2-root {
+    padding: 16px 16px 40px;
+    gap: 14px;
+  }
+
+  /* Saludo + hero + accesos pasan a columna única */
+  .mds2-greeting-row {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
+  }
+
+  /* Restaurar posición normal en flujo de columna única */
+  .mds2-greeting {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .mds2-hero-card {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 20px 20px;
+    min-height: auto;
+  }
+
+  /* Accesos rápidos debajo del hero, columna única, sin stretch */
+  .mds2-quick {
+    grid-column: 1;
+    grid-row: 3;
+    flex-direction: column;
+  }
+
+  /* Items de accesos rápidos con altura fija en lugar de flex:1 */
+  .mds2-quick-item {
+    flex: none;
+    padding: 12px 18px;
+  }
+
+  /* Ocultar la decoración SVG en móvil — ocupa espacio innecesario */
+  .mds2-hero-deco {
+    display: none;
+  }
+
+  /* Categorías en 1 columna */
+  .mds2-categories {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* Accordion chips en 1 columna */
+  .mds2-acc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Footer en columna */
+  .mds2-footer-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .mds2-footer-divider {
+    display: none;
+  }
+
+  /* Título del greeting más compacto */
+  .mds2-greeting-title {
+    font-size: 22px;
+  }
+
+  /* Hero card title más compacto */
+  .mds2-hero-card-title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mds2-root {
+    padding: 12px 12px 32px;
+  }
+
+  .mds2-greeting-title {
+    font-size: 20px;
+  }
+
+  .mds2-cat {
+    padding: 14px 12px;
+  }
+}
+
+/*Solicitud page estilos*/
+/* src/pages/mesa-de-servicio/SolicitudPage.css */

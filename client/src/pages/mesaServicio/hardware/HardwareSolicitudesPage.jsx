@@ -15,7 +15,7 @@ import {
 import { AuthContext } from "../../../context/AuthContext";
 
 // Los estilos del componente
-import "./MesaDeServicioPage.css";
+import "./HardwareSolicitudes.css";
 
 // ─── UTILIDADES ────────────────────────────────────────────────────────────────
 
@@ -282,12 +282,6 @@ export default function HardwareSolicitudesPage() {
   return (
     <div className="hws-wrap">
       {/* ENCABEZADO */}
-      <div className="hws-head">
-        <h1 className="hws-head-title">Solicitudes de Hardware</h1>
-        <p className="hws-head-sub">
-          Consulta y gestión de solicitudes registradas en el sistema.
-        </p>
-      </div>
 
       {/* TARJETAS RESUMEN */}
       <div className="hws-resumen">

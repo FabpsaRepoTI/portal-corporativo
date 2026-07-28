@@ -4,7 +4,7 @@ import {
   enviarSolicitud,
 } from "../../../services/hardwareService";
 import { AuthContext } from "../../../context/AuthContext";
-import "./MesaDeServicioPage.css";
+import "./HardwareSolicitudes.css";
 //import { MOTIVOS, ICON_MAP } from "../../../data/staticData.js";
 
 export const MOTIVOS = [
