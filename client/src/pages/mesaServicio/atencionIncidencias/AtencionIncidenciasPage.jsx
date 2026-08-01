@@ -32,7 +32,6 @@ const ESTATUS_MAP = {
   3: { label: "Resuelto", bg: "rgba(76,201,166,0.12)", color: "#4cc9a6" },
   4: { label: "Cerrado", bg: "rgba(148,163,184,0.12)", color: "#94a3b8" },
   5: { label: "Cancelado", bg: "rgba(243,139,168,0.12)", color: "#f38ba8" },
-  6: { label: "Pend. usuario", bg: "rgba(246,193,119,0.12)", color: "#f6c177" },
   7: {
     label: "En diagnóstico",
     bg: "rgba(243,139,168,0.12)",
@@ -1524,7 +1523,6 @@ export default function MesaAyudaAdminPage() {
                 l: p.prioridad,
               })),
             },
-            { key: "categoria", label: "Categoría", opts: [] },
             {
               key: "tecnico",
               label: "Ingeniero asignado",
@@ -1768,10 +1766,50 @@ export default function MesaAyudaAdminPage() {
                         <span className="mha-no-asign">Sin asignar</span>
                       )}
                     </td>
-                    <td
+                    {/*<td
                       style={{ color: slaColor, fontWeight: 600, fontSize: 12 }}
                     >
                       {slaTxt}
+                    </td>*/}
+                    <td>
+                      {[3, 4, 5].includes(s.idEstatus) ? (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 500,
+                            padding: "2px 8px",
+                            borderRadius: 20,
+                            background:
+                              s.idEstatus === 3
+                                ? "rgba(76,201,166,0.12)"
+                                : s.idEstatus === 4
+                                  ? "rgba(148,163,184,0.12)"
+                                  : "rgba(243,139,168,0.12)",
+                            color:
+                              s.idEstatus === 3
+                                ? "#4cc9a6"
+                                : s.idEstatus === 4
+                                  ? "#94a3b8"
+                                  : "#f38ba8",
+                          }}
+                        >
+                          {s.idEstatus === 3
+                            ? "Resuelto"
+                            : s.idEstatus === 4
+                              ? "Cerrado"
+                              : "Cancelado"}
+                        </span>
+                      ) : (
+                        <span
+                          style={{
+                            color: slaColor,
+                            fontWeight: 600,
+                            fontSize: 12,
+                          }}
+                        >
+                          {slaTxt}
+                        </span>
+                      )}
                     </td>
                     <td className="mha-fecha">
                       {fmtFecha(s.fechaCreacion, true)}

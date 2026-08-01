@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
 import "./MisSolicitudes.css";
 import HardwareMisSolicitudes from "./HardwareMisSolicitudes";
@@ -383,7 +383,6 @@ function EvalPopover({ ticketId, detalle, onEvaluado, onClose }) {
       );
       if (!r.ok) throw new Error();
       setEnviado(true);
-      // Después de 1.2s cerrar popover y pedir confirmación de cierre en DetalleExpandido
       setTimeout(() => {
         onEvaluado(true);
         onClose();
@@ -749,7 +748,6 @@ function TabEvidencias({ archivos, ticketId, onArchivoSubido }) {
    TAB: SLA
    ═══════════════════════════════════════════════════════════════ */
 function TabSLA({ d }) {
-  const resuelto = [3, 4, 5].includes(d.idEstatus);
   const slaResp = getSlaInfo(d.fechaLimiteResp);
   const slaResol = getSlaInfo(d.fechaLimiteResol);
   const r = 36,
@@ -980,17 +978,28 @@ function TabComentarios({ d, ticketId, user, onNuevoComentario }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Panel expandido — mismo ADN que admin
+   Panel expandido
    ═══════════════════════════════════════════════════════════════ */
-function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
+function DetalleExpandido({
+  id,
+  user,
+  initialTab,
+  onAccionCancelar,
+  onRefresh,
+}) {
   const [detalle, setDetalle] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("info");
+  const [tab, setTab] = useState(initialTab ?? "info");
   const [yaEvaluo, setYaEvaluo] = useState(false);
   const [showEval, setShowEval] = useState(false);
   const [cerrando, setCerrando] = useState(false);
   const [reabriendo, setReabriendo] = useState(false);
   const [pedirCierre, setPedirCierre] = useState(false);
+
+  // Aplicar tab inicial cuando viene de notificación
+  useEffect(() => {
+    if (initialTab) setTab(initialTab);
+  }, [initialTab]);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -1042,7 +1051,6 @@ function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
         headers: authH(),
       });
       if (!r.ok) throw new Error();
-      // Al reabrir, permitir que el usuario evalúe de nuevo cuando se resuelva nuevamente
       setYaEvaluo(false);
       onRefresh();
     } catch {
@@ -1052,12 +1060,10 @@ function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
     }
   }
 
-  // Calcula si el botón reabrir está disponible (dentro de 48h desde resolución)
   function puedeReabrir() {
     if (!detalle || detalle.idEstatus !== 4) return false;
     if (!detalle.fechaResolucion) return false;
-    const hrs = (new Date() - new Date(detalle.fechaResolucion)) / 3_600_000;
-    return hrs <= 48;
+    return (new Date() - new Date(detalle.fechaResolucion)) / 3_600_000 <= 48;
   }
 
   const nComentarios = detalle?.comentarios?.length || 0;
@@ -1139,10 +1145,8 @@ function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
             />
           )}
 
-          {/* Barra de acciones — idéntica en estructura a admin */}
           <div className="msp-detail-actions">
             <span className="msp-detail-actions-label">Acciones</span>
-
             <button
               className="msp-btn-action"
               onClick={() => setTab("comentarios")}
@@ -1150,8 +1154,6 @@ function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
               <i className="ti ti-message" />
               Agregar comentario
             </button>
-
-            {/* Calificar — solo resuelto y no evaluó */}
             {esResuelto && !yaEvaluo && (
               <div className="msp-eval-trigger-wrap">
                 <button
@@ -1175,8 +1177,6 @@ function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
                 )}
               </div>
             )}
-
-            {/* Modal de cierre — fuera del popover para evitar problemas de z-index */}
             {pedirCierre && (
               <ModalCerrarTicket
                 onConfirm={() => {
@@ -1186,8 +1186,6 @@ function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
                 onCancel={() => setPedirCierre(false)}
               />
             )}
-
-            {/* Ya evaluó — mostrar badge + opción de cerrar si sigue resuelto */}
             {esResuelto && yaEvaluo && (
               <>
                 <span className="msp-eval-done">
@@ -1211,8 +1209,6 @@ function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
                 </button>
               </>
             )}
-
-            {/* Reabrir — solo Cerrado dentro de 48h */}
             {esCerrado && puedeReabrir() && (
               <button
                 className="msp-btn-action"
@@ -1227,8 +1223,6 @@ function DetalleExpandido({ id, user, onAccionCancelar, onRefresh }) {
                 {reabriendo ? "Reabriendo…" : "Reabrir ticket"}
               </button>
             )}
-
-            {/* Cancelar — solo abierto */}
             {puedeCancel && (
               <button
                 className="msp-btn-action danger"
@@ -1294,6 +1288,7 @@ const ESTATUS_HW_OPTS = [
 export default function MisSolicitudesPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [mainTab, setMainTab] = useState("incidencias");
   const [kpis, setKpis] = useState(null);
@@ -1301,9 +1296,28 @@ export default function MisSolicitudesPage() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
+  const [pendingTab, setPendingTab] = useState(null);
   const [buscar, setBuscar] = useState("");
   const [filtroEstatus, setFiltroEstatus] = useState("");
   const [filtroPrioridad, setFiltroPrioridad] = useState("");
+
+  /* ── Navegación inteligente desde notificaciones ── */
+  useEffect(() => {
+    const folio = searchParams.get("folio");
+    const tab = searchParams.get("tab");
+    if (!folio || !solicitudes.length) return;
+
+    const found = solicitudes.find((s) => s.folio === folio);
+    if (found) {
+      setExpandedId(found.idSolicitud);
+      if (tab) setPendingTab(tab);
+      setTimeout(() => {
+        document
+          .getElementById(`row-${found.idSolicitud}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [searchParams, solicitudes]);
 
   const cargarKpis = useCallback(() => {
     fetch(`${API}/api/solicitudes-usuario/kpis`, { headers: authH() })
@@ -1354,6 +1368,7 @@ export default function MisSolicitudesPage() {
   }
   function toggleRow(id) {
     setExpandedId((p) => (p === id ? null : id));
+    setPendingTab(null);
   }
 
   async function cancelarSolicitud(id) {
@@ -1372,7 +1387,6 @@ export default function MisSolicitudesPage() {
     }
   }
 
-  /* KPI cards */
   const kpiCardsInc = [
     {
       id: 0,
@@ -1475,23 +1489,6 @@ export default function MisSolicitudesPage() {
             <circle cx="340" cy="20" r="80" fill="#7c8cf8" opacity="0.04" />
             <circle cx="375" cy="80" r="50" fill="#4cc9a6" opacity="0.035" />
           </svg>
-          {/*<div className="msp-hero-content">
-            <button className="msp-hero-back" onClick={() => navigate("/")}>
-              <i className="ti ti-arrow-left" />
-              Inicio
-            </button>
-            <div className="msp-hero-meta">
-              <div className="msp-hero-eyebrow">
-                <i className="ti ti-ticket" />
-                Mesa de Servicio
-              </div>
-              <h1 className="msp-hero-title">Mis Solicitudes</h1>
-              <p className="msp-hero-sub">
-                Consulta y da seguimiento a tus solicitudes con el equipo de
-                Sistemas.
-              </p>
-            </div>
-          </div>*/}
           <div className="mds-header">
             <button
               className="mds-back"
@@ -1500,7 +1497,6 @@ export default function MisSolicitudesPage() {
               <i className="ti ti-arrow-left" />
               Volver a la Mesa de Ayuda
             </button>
-
             <div className="mds-hero">
               <div className="mds-hero-icon">
                 <i className="ti ti-headset" />
@@ -1572,7 +1568,7 @@ export default function MisSolicitudesPage() {
             ))}
           </div>
 
-          {/* Toolbar unificado */}
+          {/* Toolbar */}
           <div className="msp-toolbar">
             <div className="msp-search-wrap">
               <i className="ti ti-search msp-search-icon" />
@@ -1640,7 +1636,7 @@ export default function MisSolicitudesPage() {
             />
           )}
 
-          {/* Tab incidencias — tabla igual al admin */}
+          {/* Tab incidencias */}
           {mainTab === "incidencias" && (
             <div className="msp-table-wrap">
               <table className="msp-table">
@@ -1696,10 +1692,10 @@ export default function MisSolicitudesPage() {
                       return [
                         <tr
                           key={s.idSolicitud}
+                          id={`row-${s.idSolicitud}`}
                           className={`msp-tr ${isExpanded ? "msp-tr--exp" : ""}`}
                           onClick={() => toggleRow(s.idSolicitud)}
                         >
-                          {/* Toggle */}
                           <td>
                             <button className="msp-expand-btn">
                               <i
@@ -1707,11 +1703,7 @@ export default function MisSolicitudesPage() {
                               />
                             </button>
                           </td>
-
-                          {/* Folio */}
                           <td className="msp-folio">{s.folio}</td>
-
-                          {/* Servicio */}
                           <td>
                             <div className="msp-servicio-cell">
                               <div
@@ -1735,29 +1727,21 @@ export default function MisSolicitudesPage() {
                               </div>
                             </div>
                           </td>
-
-                          {/* Categoría */}
                           <td className="msp-cat">
                             {s.categoria || "General TI"}
                           </td>
-
-                          {/* Prioridad */}
                           <td>
                             <PrioChip
                               nombre={s.prioridadNombre}
                               color={s.prioridadColor}
                             />
                           </td>
-
-                          {/* Estado */}
                           <td>
                             <EstatusChip
                               idEstatus={s.idEstatus}
                               label={s.estatusNombre}
                             />
                           </td>
-
-                          {/* Ingeniero */}
                           <td>
                             {s.nombreTecnico ? (
                               <div className="msp-tec-cell">
@@ -1772,8 +1756,6 @@ export default function MisSolicitudesPage() {
                               <span className="msp-no-asign">Sin asignar</span>
                             )}
                           </td>
-
-                          {/* SLA restante */}
                           <td>
                             {resuelto ? (
                               <span className="msp-sla ok">
@@ -1794,13 +1776,9 @@ export default function MisSolicitudesPage() {
                               </span>
                             )}
                           </td>
-
-                          {/* Creación */}
                           <td className="msp-fecha">
                             {fmtFecha(s.fechaCreacion, true)}
                           </td>
-
-                          {/* Tiempo atención */}
                           <td className="msp-fecha">
                             {fmtTiempo(s.tiempoAtencionMin)}
                           </td>
@@ -1815,6 +1793,7 @@ export default function MisSolicitudesPage() {
                               <DetalleExpandido
                                 id={s.idSolicitud}
                                 user={user}
+                                initialTab={pendingTab}
                                 onAccionCancelar={cancelarSolicitud}
                                 onRefresh={() => {
                                   fetchLista();

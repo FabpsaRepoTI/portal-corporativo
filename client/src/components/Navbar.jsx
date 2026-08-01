@@ -4,6 +4,8 @@ import { useTheme } from "../context/ThemeContext";
 
 import { useAuth } from "../hooks/useAuth";
 
+import NotificationBell from "./NotificationBell";
+
 export default function Navbar() {
   const { theme, toggle } = useTheme();
 
@@ -185,16 +187,16 @@ export default function Navbar() {
       </div>*/}
 
       <div className="navbar-right">
+        <NotificationBell />
         <div
           className="weather-chip"
           title={`${city}${neighborhood ? ` · ${neighborhood}` : ""}`}
         >
-          <i className={weatherIcon} />
+          <i className={weatherIcon} />.
           <span>
             {temp ?? "--"}° · {city}
           </span>
         </div>
-
         <span className="brand-usd">
           💵 USD/MXN{" "}
           {usd !== null
@@ -203,7 +205,6 @@ export default function Navbar() {
           {trend === "up" && " 🔺"}
           {trend === "down" && " 🔻"}
         </span>
-
         <div className="theme-toggle">
           <button
             className={`theme-btn ${theme === "dark" ? "active" : ""}`}
@@ -221,7 +222,6 @@ export default function Navbar() {
             <i className="ti ti-sun" />
           </button>
         </div>
-
         {/* ── USUARIO + DROPDOWN ── */}
         <div className="navbar-user" style={{ position: "relative" }}>
           <div

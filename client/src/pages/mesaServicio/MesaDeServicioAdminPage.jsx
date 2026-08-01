@@ -8,7 +8,7 @@ import "./MesaDeServicioAdmin.css";
 const TABS = [
   {
     key: "incidencias",
-    label: "Incidencias TI",
+    label: "Tickets",
     icon: "ti-alert-circle",
     color: "#7c8cf8",
     colorBg: "rgba(124,140,248,0.08)",

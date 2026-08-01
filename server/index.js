@@ -15,8 +15,21 @@ app.use(
       "http://192.168.16.198",
       "http://201.151.218.138",
     ],
+    credentials: true,
   }),
 );
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  );
+  next();
+});
+
+app.use(express.json());
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/public")));
@@ -49,6 +62,9 @@ app.use("/api/solicitudes-usuario", solicitudesUsuarioRoutes);
 
 const hwUsuarioRoutes = require("./routes/hardwareUsuario.routes");
 app.use("/api/solicitudes-usuario/hardware", hwUsuarioRoutes);
+
+const notificacionesRoutes = require("./routes/notificaciones.routes");
+app.use("/api/notificaciones", notificacionesRoutes);
 
 app.get("/", (req, res) => {
   res.send("API FABPSA funcionando en intranet");

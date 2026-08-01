@@ -1,4 +1,5 @@
 const { getPool, sql } = require("../db");
+const { crearNotificacion, TIPOS } = require("./notificaciones.service");
 
 async function getKPIs() {
   const pool = await getPool();
@@ -27,16 +28,17 @@ async function getSolicitudes({
   porPagina = 10,
 }) {
   const pool = await getPool();
+  const mssql = require("mssql");
   const r = pool.request();
   const offset = (pagina - 1) * porPagina;
   let where = "WHERE 1=1";
 
   if (estatus) {
-    r.input("estatus", estatus);
+    r.input("estatus", mssql.Int, parseInt(estatus));
     where += " AND s.idEstatus = @estatus";
   }
   if (prioridad) {
-    r.input("prioridad", prioridad);
+    r.input("prioridad", mssql.Int, parseInt(prioridad));
     where += " AND s.idPrioridad = @prioridad";
   }
   if (categoria) {
@@ -137,14 +139,11 @@ async function getSolicitudDetalle(idSolicitud) {
   `);
 
   const evalRes = await pool.request().input("idSolicitud", idSolicitud).query(`
-  SELECT TOP 1
-    calificacion,
-    comentario,
-    fechaRegistro AS fecha
-  FROM solicitudTI_evaluacion
-  WHERE idSolicitud = @idSolicitud
-  ORDER BY fechaRegistro DESC
-`);
+    SELECT TOP 1 calificacion, comentario, fechaRegistro AS fecha
+    FROM solicitudTI_evaluacion
+    WHERE idSolicitud = @idSolicitud
+    ORDER BY fechaRegistro DESC
+  `);
 
   const ev = evalRes.recordset[0];
   return {
@@ -164,6 +163,16 @@ async function getSolicitudDetalle(idSolicitud) {
 
 async function asignar(idSolicitud, tecnicoLogin, nombreTecnico) {
   const pool = await getPool();
+
+  // Obtener datos del ticket para la notificación
+  const solRes = await pool
+    .request()
+    .input("idSolicitud", idSolicitud)
+    .query(
+      `SELECT folio, titulo, idUsuario FROM solicitudTI WHERE idSolicitud = @idSolicitud`,
+    );
+  const sol = solRes.recordset[0];
+
   await pool
     .request()
     .input("idSolicitud", idSolicitud)
@@ -176,42 +185,53 @@ async function asignar(idSolicitud, tecnicoLogin, nombreTecnico) {
           fechaActualizacion = GETDATE()
       WHERE idSolicitud = @idSolicitud
     `);
+
+  // Notificar al usuario solicitante
+  if (sol) {
+    await crearNotificacion({
+      loginDestino: sol.idUsuario,
+      loginOrigen: tecnicoLogin,
+      idTipo: TIPOS.TICKET_ASIGNADO,
+      idSolicitud,
+      titulo: "Solicitud asignada",
+      descripcion: `Tu solicitud fue asignada a ${nombreTecnico}.`,
+      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
+    });
+  }
 }
 
-// ── MODIFICADO: valida asignación antes de permitir Resuelto ──
 async function cambiarEstatus(idSolicitud, idEstatus, loginSolicitante) {
   const pool = await getPool();
 
-  // Si se intenta marcar como Resuelto (3), verificar que esté asignado
-  // al ingeniero que hace la acción
   if (idEstatus === 3) {
     const check = await pool
       .request()
       .input("id", sql.Int, idSolicitud)
       .query(`SELECT tecnicoAsignado FROM solicitudTI WHERE idSolicitud = @id`);
-
     const row = check.recordset[0];
-
     if (!row) throw new Error("Solicitud no encontrada");
-
-    // Sin asignar
-    if (!row.tecnicoAsignado) {
+    if (!row.tecnicoAsignado)
       return {
         ok: false,
         code: "SIN_ASIGNAR",
         message: "Debes asignarte el ticket antes de marcarlo como resuelto.",
       };
-    }
-
-    // Asignado a otro ingeniero
-    if (loginSolicitante && row.tecnicoAsignado !== loginSolicitante) {
+    if (loginSolicitante && row.tecnicoAsignado !== loginSolicitante)
       return {
         ok: false,
         code: "NO_ASIGNADO",
-        message: `Este ticket está asignado a otro ingeniero. Transfíerelo primero o solicita que te lo asignen.`,
+        message: "Este ticket está asignado a otro ingeniero.",
       };
-    }
   }
+
+  // Obtener datos del ticket para la notificación
+  const solRes = await pool
+    .request()
+    .input("idSolicitud", sql.Int, idSolicitud)
+    .query(
+      `SELECT folio, titulo, idUsuario FROM solicitudTI WHERE idSolicitud = @idSolicitud`,
+    );
+  const sol = solRes.recordset[0];
 
   await pool
     .request()
@@ -225,10 +245,40 @@ async function cambiarEstatus(idSolicitud, idEstatus, loginSolicitante) {
       WHERE idSolicitud = @idSolicitud
     `);
 
+  // Mapa de estatus a texto legible
+  const ESTATUS_TEXTO = {
+    1: "Abierta",
+    2: "En progreso",
+    3: "Resuelta",
+    4: "Cerrada",
+    5: "Cancelada",
+    7: "En diagnóstico",
+    8: "Escalada",
+  };
+
+  // Tipo de notificación según estatus
+  const tipoMap = {
+    3: TIPOS.TICKET_CERRADO,
+    4: TIPOS.TICKET_CERRADO,
+    5: TIPOS.RECHAZADO,
+  };
+  const idTipo = tipoMap[idEstatus] ?? TIPOS.ESTATUS_CAMBIO;
+
+  if (sol) {
+    await crearNotificacion({
+      loginDestino: sol.idUsuario,
+      loginOrigen: loginSolicitante,
+      idTipo,
+      idSolicitud,
+      titulo: "Estatus actualizado",
+      descripcion: `Tu solicitud cambió a "${ESTATUS_TEXTO[idEstatus] ?? "Actualizada"}".`,
+      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
+    });
+  }
+
   return { ok: true };
 }
 
-// ── NUEVO: escalar solicitud ────────────────────────────────────
 async function escalar(
   idSolicitud,
   escalaA,
@@ -238,7 +288,15 @@ async function escalar(
 ) {
   const pool = await getPool();
 
-  // Actualizar estatus a Escalado (8) y guardar a quién se escala
+  // Obtener datos del ticket
+  const solRes = await pool
+    .request()
+    .input("idSolicitud", sql.Int, idSolicitud)
+    .query(
+      `SELECT folio, titulo, idUsuario FROM solicitudTI WHERE idSolicitud = @idSolicitud`,
+    );
+  const sol = solRes.recordset[0];
+
   await pool
     .request()
     .input("idSolicitud", sql.Int, idSolicitud)
@@ -250,7 +308,6 @@ async function escalar(
       WHERE idSolicitud = @idSolicitud
     `);
 
-  // Registrar en bitácora automáticamente
   const notaBitacora = comentario?.trim()
     ? `Escalado a ${escalaA}. Motivo: ${comentario.trim()}`
     : `Escalado a ${escalaA}.`;
@@ -265,20 +322,42 @@ async function escalar(
       VALUES (@idSolicitud, @idUsuario, @nombreUsuario, @nota)
     `);
 
+  // Notificar al usuario solicitante
+  if (sol) {
+    await crearNotificacion({
+      loginDestino: sol.idUsuario,
+      loginOrigen: loginUsuario,
+      idTipo: TIPOS.ESCALADO,
+      idSolicitud,
+      titulo: "Solicitud escalada",
+      descripcion: `Tu solicitud fue escalada a ${escalaA}.`,
+      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=historial`,
+    });
+  }
+
   return { ok: true };
 }
 
 async function cambiarPrioridad(idSolicitud, idPrioridad) {
   const pool = await getPool();
+
   const pr = await pool
     .request()
     .input("idPrioridad", idPrioridad)
     .query(
-      "SELECT slaRespuestaHrs, slaResolucionHrs FROM cat_prioridad WHERE idPrioridad = @idPrioridad",
+      "SELECT slaRespuestaHrs, slaResolucionHrs, prioridad FROM cat_prioridad WHERE idPrioridad = @idPrioridad",
     );
-
   if (!pr.recordset.length) throw new Error("Prioridad no encontrada");
-  const { slaRespuestaHrs, slaResolucionHrs } = pr.recordset[0];
+  const { slaRespuestaHrs, slaResolucionHrs, prioridad } = pr.recordset[0];
+
+  // Obtener datos del ticket
+  const solRes = await pool
+    .request()
+    .input("idSolicitud", idSolicitud)
+    .query(
+      `SELECT folio, idUsuario FROM solicitudTI WHERE idSolicitud = @idSolicitud`,
+    );
+  const sol = solRes.recordset[0];
 
   await pool
     .request()
@@ -295,6 +374,17 @@ async function cambiarPrioridad(idSolicitud, idPrioridad) {
           fechaActualizacion = GETDATE()
       WHERE idSolicitud = @idSolicitud
     `);
+
+  if (sol) {
+    await crearNotificacion({
+      loginDestino: sol.idUsuario,
+      idTipo: TIPOS.PRIORIDAD_CAMBIO,
+      idSolicitud,
+      titulo: "Prioridad actualizada",
+      descripcion: `La prioridad de tu solicitud cambió a "${prioridad}".`,
+      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
+    });
+  }
 }
 
 async function agregarComentario(
@@ -305,6 +395,16 @@ async function agregarComentario(
   comentario,
 ) {
   const pool = await getPool();
+
+  // Obtener datos del ticket para notificar al solicitante
+  const solRes = await pool
+    .request()
+    .input("idSolicitud", idSolicitud)
+    .query(
+      `SELECT folio, idUsuario FROM solicitudTI WHERE idSolicitud = @idSolicitud`,
+    );
+  const sol = solRes.recordset[0];
+
   await pool
     .request()
     .input("idSolicitud", idSolicitud)
@@ -315,6 +415,19 @@ async function agregarComentario(
       INSERT INTO solicitudTI_comentarios (idSolicitud, idUsuario, nombreUsuario, esInterno, comentario)
       VALUES (@idSolicitud, @idUsuario, @nombreUsuario, @esInterno, @comentario)
     `);
+
+  // Solo notificar si el comentario NO es interno y el que comenta no es el solicitante
+  if (!esInterno && sol && sol.idUsuario !== idUsuario) {
+    await crearNotificacion({
+      loginDestino: sol.idUsuario,
+      loginOrigen: idUsuario,
+      idTipo: TIPOS.COMENTARIO_NUEVO,
+      idSolicitud,
+      titulo: "Nuevo comentario en tu solicitud",
+      descripcion: `${nombreUsuario}: "${comentario.substring(0, 80)}${comentario.length > 80 ? "…" : ""}"`,
+      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=comentarios`,
+    });
+  }
 }
 
 async function agregarBitacora(idSolicitud, idUsuario, nombreUsuario, nota) {
