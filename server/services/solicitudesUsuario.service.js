@@ -213,10 +213,223 @@ async function cancelarSolicitud(idSolicitud, login) {
   return { ok: true };
 }
 
+async function postArchivos(idSolicitud, login, archivos) {
+  const pool = await getPool();
+
+  const check = await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .input("login", sql.VarChar, login)
+    .query(
+      `SELECT idSolicitud FROM solicitudTI WHERE idSolicitud = @id AND idUsuario = @login`,
+    );
+
+  if (!check.recordset.length) return null;
+
+  const guardados = [];
+  for (const file of archivos) {
+    const rutaRelativa = `uploads/solicitudes/${idSolicitud}/${file.filename}`;
+    const result = await pool
+      .request()
+      .input("idSolicitud", sql.Int, idSolicitud)
+      .input("nombreArchivo", sql.NVarChar(255), file.originalname)
+      .input("rutaServidor", sql.NVarChar(500), rutaRelativa)
+      .input("mimeType", sql.VarChar(100), file.mimetype)
+      .input("tamanoBytes", sql.Int, file.size).query(`
+        INSERT INTO solicitudTI_archivos
+          (idSolicitud, nombreArchivo, rutaServidor, mimeType, tamanoBytes, fechaSubida)
+        OUTPUT INSERTED.idArchivo, INSERTED.nombreArchivo, INSERTED.rutaServidor,
+               INSERTED.mimeType, INSERTED.tamanoBytes, INSERTED.fechaSubida
+        VALUES
+          (@idSolicitud, @nombreArchivo, @rutaServidor, @mimeType, @tamanoBytes, GETDATE())
+      `);
+    guardados.push(result.recordset[0]);
+  }
+  return guardados;
+}
+
+async function postEvaluacion(
+  idSolicitud,
+  login,
+  { calificacion, emoji, comentario },
+) {
+  const pool = await getPool();
+  const check = await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .input("login", sql.VarChar, login)
+    .query(
+      `SELECT idEstatus FROM solicitudTI WHERE idSolicitud = @id AND idUsuario = @login`,
+    );
+
+  if (!check.recordset.length) return { ok: false, error: "No autorizado" };
+  if (check.recordset[0].idEstatus !== 3)
+    return { ok: false, error: "Solo tickets resueltos" };
+
+  const existe = await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .query(
+      `SELECT idEvaluacion FROM solicitudTI_evaluacion WHERE idSolicitud = @id`,
+    );
+
+  if (existe.recordset.length) return { ok: false, error: "Ya evaluado" };
+
+  await pool
+    .request()
+    .input("idSolicitud", sql.Int, idSolicitud)
+    .input("calificacion", sql.TinyInt, calificacion)
+    .input("emoji", sql.VarChar(10), emoji || null)
+    .input("comentario", sql.NVarChar(500), comentario || null).query(`
+      INSERT INTO solicitudTI_evaluacion (idSolicitud, calificacion, emoji, comentario, fechaRegistro)
+      VALUES (@idSolicitud, @calificacion, @emoji, @comentario, GETDATE())
+    `);
+
+  return { ok: true };
+}
+
+async function cerrarSolicitud(idSolicitud, login) {
+  const pool = await getPool();
+  const check = await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .input("login", sql.VarChar, login)
+    .query(
+      `SELECT idEstatus FROM solicitudTI WHERE idSolicitud = @id AND idUsuario = @login`,
+    );
+
+  if (!check.recordset.length) return { ok: false, error: "No autorizado" };
+  if (check.recordset[0].idEstatus !== 3)
+    return { ok: false, error: "Solo se pueden cerrar tickets resueltos" };
+
+  await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .query(
+      `UPDATE solicitudTI SET idEstatus = 4, fechaActualizacion = GETDATE() WHERE idSolicitud = @id`,
+    );
+
+  return { ok: true };
+}
+
+async function reabrirSolicitud(idSolicitud, login) {
+  const pool = await getPool();
+  const check = await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .input("login", sql.VarChar, login).query(`
+      SELECT idEstatus, fechaResolucion
+      FROM solicitudTI
+      WHERE idSolicitud = @id AND idUsuario = @login
+    `);
+
+  if (!check.recordset.length) return { ok: false, error: "No autorizado" };
+
+  const row = check.recordset[0];
+
+  // Solo se puede reabrir si está Cerrado (4)
+  if (row.idEstatus !== 4)
+    return { ok: false, error: "Solo se pueden reabrir tickets cerrados" };
+
+  // Verificar ventana de 48 horas desde fechaResolucion
+  const ahora = new Date();
+  const fechaResol = new Date(row.fechaResolucion);
+  const horasTransc = (ahora - fechaResol) / 3_600_000;
+
+  if (horasTransc > 48)
+    return {
+      ok: false,
+      error: "La ventana de 48 horas para reabrir ha expirado",
+    };
+
+  await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .query(
+      `UPDATE solicitudTI SET idEstatus = 1, fechaActualizacion = GETDATE() WHERE idSolicitud = @id`,
+    );
+
+  return { ok: true };
+}
+
+async function cerrarSolicitud(idSolicitud, login) {
+  const pool = await getPool();
+  const check = await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .input("login", sql.VarChar, login)
+    .query(
+      `SELECT idEstatus FROM solicitudTI WHERE idSolicitud = @id AND idUsuario = @login`,
+    );
+
+  if (!check.recordset.length) return { ok: false, error: "No autorizado" };
+  if (check.recordset[0].idEstatus !== 3)
+    return { ok: false, error: "Solo se pueden cerrar tickets resueltos" };
+
+  await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .query(
+      `UPDATE solicitudTI SET idEstatus = 4, fechaActualizacion = GETDATE() WHERE idSolicitud = @id`,
+    );
+
+  return { ok: true };
+}
+
+async function reabrirSolicitud(idSolicitud, login) {
+  const pool = await getPool();
+  const check = await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .input("login", sql.VarChar, login).query(`
+      SELECT idEstatus, fechaResolucion
+      FROM solicitudTI
+      WHERE idSolicitud = @id AND idUsuario = @login
+    `);
+
+  if (!check.recordset.length) return { ok: false, error: "No autorizado" };
+
+  const row = check.recordset[0];
+
+  // Solo se puede reabrir si está Cerrado (4)
+  if (row.idEstatus !== 4)
+    return { ok: false, error: "Solo se pueden reabrir tickets cerrados" };
+
+  // Verificar ventana de 48 horas desde fechaResolucion
+  const ahora = new Date();
+  const fechaResol = new Date(row.fechaResolucion);
+  const horasTransc = (ahora - fechaResol) / 3_600_000;
+
+  if (horasTransc > 48)
+    return {
+      ok: false,
+      error: "La ventana de 48 horas para reabrir ha expirado",
+    };
+
+  await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .query(
+      `UPDATE solicitudTI SET idEstatus = 1, fechaActualizacion = GETDATE() WHERE idSolicitud = @id`,
+    );
+
+  // Borrar la evaluación previa para permitir re-evaluar cuando se resuelva de nuevo
+  await pool
+    .request()
+    .input("id", sql.Int, idSolicitud)
+    .query(`DELETE FROM solicitudTI_evaluacion WHERE idSolicitud = @id`);
+
+  return { ok: true };
+}
+
 module.exports = {
   getMisKpis,
   getMisSolicitudes,
   getDetalleSolicitud,
   postComentario,
   cancelarSolicitud,
+  postArchivos,
+  postEvaluacion,
+  cerrarSolicitud,
+  reabrirSolicitud,
 };

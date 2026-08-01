@@ -32,6 +32,7 @@ router.post("/solicitud", async (req, res) => {
   }
 
   const usuario = req.user.name || req.user.login;
+  const loginUsuario = req.user.login; // ← nuevo
   const departamento = req.user.area || req.user.sitio || null;
 
   let transaction;
@@ -43,12 +44,15 @@ router.post("/solicitud", async (req, res) => {
 
     const cabeceraResult = await new sql.Request(transaction)
       .input("usuario", sql.VarChar, usuario)
+      .input("loginUsuario", sql.VarChar, loginUsuario) // ← nuevo
       .input("departamento", sql.VarChar, departamento)
       .input("motivo", sql.VarChar, motivo || null)
       .input("observaciones", sql.VarChar, observaciones || null).query(`
-        INSERT INTO solicitudHardware (fechaRegistro, usuario, departamento, motivo, observaciones, estatus)
+        INSERT INTO solicitudHardware
+          (fechaRegistro, usuario, loginUsuario, departamento, motivo, observaciones, estatus)
         OUTPUT INSERTED.idSolicitud
-        VALUES (GETDATE(), @usuario, @departamento, @motivo, @observaciones, 'Pendiente')
+        VALUES
+          (GETDATE(), @usuario, @loginUsuario, @departamento, @motivo, @observaciones, 'Pendiente')
       `);
 
     const idSolicitud = cabeceraResult.recordset[0].idSolicitud;
@@ -56,14 +60,14 @@ router.post("/solicitud", async (req, res) => {
 
     await new sql.Request(transaction)
       .input("idSolicitud", sql.Int, idSolicitud)
-      .input("folio", sql.VarChar, folio).query(`
-        UPDATE solicitudHardware SET folio = @folio WHERE idSolicitud = @idSolicitud
-      `);
+      .input("folio", sql.VarChar, folio)
+      .query(
+        `UPDATE solicitudHardware SET folio = @folio WHERE idSolicitud = @idSolicitud`,
+      );
 
     for (const art of articulos) {
       const idArticulo = parseInt(art.idArticulo, 10);
       const cantidad = parseInt(art.cantidad, 10) || 1;
-
       if (!idArticulo || idArticulo <= 0) continue;
 
       await new sql.Request(transaction)
@@ -78,11 +82,7 @@ router.post("/solicitud", async (req, res) => {
 
     await transaction.commit();
 
-    // ─── NUEVO: evento inicial en el hilo de actividad ───────────────────────────
-    // Insertamos fuera de la transaction principal, a propósito.
-    // Si este INSERT falla, la solicitud ya está guardada — no la perdemos.
-    // rol = 'sistema' (con 'a' al final, sin 's') identifica mensajes automáticos
-    // del sistema, distinto de 'sistemas' que es cuando escribe alguien de TI.
+    // Evento inicial en el hilo de actividad (fuera de la transaction)
     try {
       const dbEvento = await getPool();
       await new sql.Request(dbEvento)
@@ -92,22 +92,18 @@ router.post("/solicitud", async (req, res) => {
         .input("rol", sql.VarChar, "sistema")
         .input("mensaje", sql.NVarChar, `Solicitud creada por ${usuario}`)
         .input("esEvento", sql.Bit, 1).query(`
-      INSERT INTO solicitudHardwareComentarios
-        (folio, login, nombre, rol, mensaje, esEvento)
-      VALUES
-        (@folio, @login, @nombre, @rol, @mensaje, @esEvento)
-    `);
+          INSERT INTO solicitudHardwareComentarios
+            (folio, login, nombre, rol, mensaje, esEvento)
+          VALUES
+            (@folio, @login, @nombre, @rol, @mensaje, @esEvento)
+        `);
     } catch (eventoErr) {
-      // No rompemos el flujo — la solicitud ya se guardó
       console.error("Error insertando evento inicial:", eventoErr.message);
     }
 
-    res.json({
-      success: true,
-      folio,
-      fecha: new Date().toISOString(),
-    });
+    res.json({ success: true, folio, fecha: new Date().toISOString() });
 
+    // Correo (asíncrono, no bloquea la respuesta)
     const catalogoDb = await getPool();
     const catalogoResult = await catalogoDb.request().query(`
       SELECT idArticulo, nombreArticulo, requiereAutorizacion FROM catalogoHardware
@@ -132,9 +128,9 @@ router.post("/solicitud", async (req, res) => {
       motivo,
       fecha: new Date().toLocaleString("es-MX"),
       articulos: articulosConNombre,
-    }).catch((err) => {
-      console.error("Error enviando correo de Hardware:", err.message);
-    });
+    }).catch((err) =>
+      console.error("Error enviando correo de Hardware:", err.message),
+    );
   } catch (err) {
     if (transaction) {
       try {

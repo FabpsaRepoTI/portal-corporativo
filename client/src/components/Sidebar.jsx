@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import logoFabpsa from "../logo-fabpsa.png";
 
 const NAV_SECTIONS = [
@@ -42,6 +42,8 @@ export default function Sidebar() {
   const [darkMode, setDarkMode] = useState(
     () => document.documentElement.getAttribute("data-theme") === "dark",
   );
+  const [popoverTop, setPopoverTop] = useState(0);
+  const helpRef = useRef(null);
 
   const toggleTheme = () => {
     const next = !darkMode;
@@ -52,9 +54,22 @@ export default function Sidebar() {
     );
   };
 
+  const handleSupportClick = () => {
+    if (helpRef.current) {
+      const rect = helpRef.current.getBoundingClientRect();
+      setPopoverTop(rect.top);
+    }
+    setSupportOpen((v) => !v);
+  };
+
   useEffect(() => {
     const handler = (e) => {
-      if (!e.target.closest(".sb-help-card")) setSupportOpen(false);
+      if (
+        !e.target.closest(".sb-help-card") &&
+        !e.target.closest(".sb-support-popover")
+      ) {
+        setSupportOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -87,7 +102,7 @@ export default function Sidebar() {
 
       <div className="sidebar-bottom">
         <div className="sidebar-bottom-inner">
-          <div style={{ position: "relative" }}>
+          <div ref={helpRef}>
             <div className="sb-help-card">
               <div className="sb-help-card-header">
                 <span className="sb-help-ico">
@@ -98,66 +113,13 @@ export default function Sidebar() {
               <p className="sb-help-card-desc">
                 Nuestro equipo está listo para asistirte.
               </p>
-              <button
-                className="sb-help-btn"
-                onClick={() => setSupportOpen((v) => !v)}
-              >
+              <button className="sb-help-btn" onClick={handleSupportClick}>
                 <i className="ti ti-message-circle" />
                 Contactar a soporte
                 <i
                   className={`ti ${supportOpen ? "ti-chevron-up" : "ti-chevron-down"} sb-help-chev`}
                 />
               </button>
-            </div>
-
-            <div className={`sb-support-popover${supportOpen ? " open" : ""}`}>
-              <div className="sb-pop-label">Selecciona tu sitio</div>
-
-              <a
-                className="sb-support-pop-item"
-                href="https://teams.microsoft.com/l/chat/0/0?users=jorge.gonzalez@fabpsa.com.mx"
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => setSupportOpen(false)}
-              >
-                <div
-                  className="sb-pop-avatar"
-                  style={{
-                    background: "rgba(16,185,129,0.15)",
-                    color: "#059669",
-                  }}
-                >
-                  JG
-                </div>
-                <div>
-                  <div className="sb-pop-site">Planta</div>
-                  <div className="sb-pop-name">Jorge González</div>
-                </div>
-                <i className="ti ti-arrow-right sb-pop-arrow" />
-              </a>
-
-              <a
-                className="sb-support-pop-item"
-                href="https://teams.microsoft.com/l/chat/0/0?users=lizbet.hernandez@fabpsa.com.mx"
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => setSupportOpen(false)}
-              >
-                <div
-                  className="sb-pop-avatar"
-                  style={{
-                    background: "rgba(59,130,246,0.15)",
-                    color: "#2563eb",
-                  }}
-                >
-                  LH
-                </div>
-                <div>
-                  <div className="sb-pop-site">Sur 121</div>
-                  <div className="sb-pop-name">Lizbet Hernández J.</div>
-                </div>
-                <i className="ti ti-arrow-right sb-pop-arrow" />
-              </a>
             </div>
           </div>
 
@@ -179,6 +141,51 @@ export default function Sidebar() {
             </button>
           </div>
         </div>
+      </div>
+
+      <div
+        className={`sb-support-popover${supportOpen ? " open" : ""}`}
+        style={{ top: popoverTop }}
+      >
+        <div className="sb-pop-label">Selecciona tu sitio</div>
+        <a
+          className="sb-support-pop-item"
+          href="https://teams.microsoft.com/l/chat/0/0?users=jorge.gonzalez@fabpsa.com.mx"
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => setSupportOpen(false)}
+        >
+          <div
+            className="sb-pop-avatar"
+            style={{ background: "rgba(16,185,129,0.15)", color: "#059669" }}
+          >
+            JG
+          </div>
+          <div>
+            <div className="sb-pop-site">Planta</div>
+            <div className="sb-pop-name">Jorge González</div>
+          </div>
+          <i className="ti ti-arrow-right sb-pop-arrow" />
+        </a>
+        <a
+          className="sb-support-pop-item"
+          href="https://teams.microsoft.com/l/chat/0/0?users=lizbet.hernandez@fabpsa.com.mx"
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => setSupportOpen(false)}
+        >
+          <div
+            className="sb-pop-avatar"
+            style={{ background: "rgba(59,130,246,0.15)", color: "#2563eb" }}
+          >
+            LH
+          </div>
+          <div>
+            <div className="sb-pop-site">Sur 121</div>
+            <div className="sb-pop-name">Lizbet Hernández J.</div>
+          </div>
+          <i className="ti ti-arrow-right sb-pop-arrow" />
+        </a>
       </div>
     </aside>
   );

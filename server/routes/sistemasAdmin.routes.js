@@ -14,7 +14,8 @@ router.use(verifyToken);
 router.use(requireTI);
 
 // GET todas las solicitudes con detalle
-router.get("/hardware", async (req, res) => {
+{
+  /*router.get("/hardware", async (req, res) => {
   try {
     const db = await getPool();
 
@@ -43,6 +44,60 @@ router.get("/hardware", async (req, res) => {
     }
 
     res.json(solicitudes);
+  } catch (err) {
+    console.error("Error solicitudes hardware:", err.message);
+    res.status(500).json({ error: "Error consultando solicitudes." });
+  }
+});*/
+}
+
+router.get("/hardware", async (req, res) => {
+  try {
+    const db = await getPool();
+
+    // ✅ Una sola query con JOIN — 1 round-trip en lugar de 92
+    const result = await db.request().query(`
+      SELECT 
+        s.idSolicitud, s.folio, s.fechaRegistro, s.usuario,
+        s.departamento, s.motivo, s.observaciones, s.estatus,
+        d.idDetalle, d.cantidad, d.estatusDetalle,
+        d.fechaEstimadaEntrega, d.observacionAtencion,
+        ch.nombreArticulo
+      FROM solicitudHardware s
+      LEFT JOIN solicitudHardwareDetalle d ON d.idSolicitud = s.idSolicitud
+      LEFT JOIN catalogoHardware ch ON ch.idArticulo = d.idArticulo
+      ORDER BY s.fechaRegistro DESC, d.idDetalle ASC
+    `);
+
+    // Agrupar filas por solicitud y construir el array de detalle
+    const mapaS = new Map();
+    for (const row of result.recordset) {
+      if (!mapaS.has(row.idSolicitud)) {
+        mapaS.set(row.idSolicitud, {
+          idSolicitud: row.idSolicitud,
+          folio: row.folio,
+          fechaRegistro: row.fechaRegistro,
+          usuario: row.usuario,
+          departamento: row.departamento,
+          motivo: row.motivo,
+          observaciones: row.observaciones,
+          estatus: row.estatus,
+          detalle: [],
+        });
+      }
+      if (row.idDetalle) {
+        mapaS.get(row.idSolicitud).detalle.push({
+          idDetalle: row.idDetalle,
+          nombreArticulo: row.nombreArticulo,
+          cantidad: row.cantidad,
+          estatusDetalle: row.estatusDetalle,
+          fechaEstimadaEntrega: row.fechaEstimadaEntrega,
+          observacionAtencion: row.observacionAtencion,
+        });
+      }
+    }
+
+    res.json([...mapaS.values()]);
   } catch (err) {
     console.error("Error solicitudes hardware:", err.message);
     res.status(500).json({ error: "Error consultando solicitudes." });

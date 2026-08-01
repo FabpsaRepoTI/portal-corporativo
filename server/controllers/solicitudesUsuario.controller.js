@@ -73,10 +73,76 @@ async function cancelarSolicitud(req, res) {
   }
 }
 
+async function postArchivos(req, res) {
+  try {
+    if (!req.files?.length)
+      return res.status(400).json({ error: "Sin archivos" });
+    const data = await svc.postArchivos(
+      parseInt(req.params.id),
+      req.user.login,
+      req.files,
+    );
+    if (!data) return res.status(403).json({ error: "No autorizado" });
+    res.json(data);
+  } catch (err) {
+    console.error("postArchivos:", err);
+    res.status(500).json({ error: "Error al subir archivos" });
+  }
+}
+
+async function postEvaluacion(req, res) {
+  try {
+    const { calificacion, emoji, comentario } = req.body;
+    if (!calificacion || calificacion < 1 || calificacion > 5)
+      return res.status(400).json({ error: "Calificación inválida" });
+    const result = await svc.postEvaluacion(
+      parseInt(req.params.id),
+      req.user.login,
+      { calificacion, emoji, comentario },
+    );
+    if (!result.ok) return res.status(409).json({ error: result.error });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("postEvaluacion:", err);
+    res.status(500).json({ error: "Error al guardar evaluación" });
+  }
+}
+
+async function cerrarSolicitud(req, res) {
+  try {
+    const result = await svc.cerrarSolicitud(
+      parseInt(req.params.id),
+      req.user.login,
+    );
+    if (!result.ok) return res.status(400).json({ error: result.error });
+    res.json({ success: true });
+  } catch (err) {
+    console.error("cerrarSolicitud:", err);
+    res.status(500).json({ error: "Error al cerrar la solicitud" });
+  }
+}
+
+async function reabrirSolicitud(req, res) {
+  try {
+    const result = await svc.reabrirSolicitud(
+      parseInt(req.params.id),
+      req.user.login,
+    );
+    if (!result.ok) return res.status(400).json({ error: result.error });
+    res.json({ success: true });
+  } catch (err) {
+    console.error("reabrirSolicitud:", err);
+    res.status(500).json({ error: "Error al reabrir la solicitud" });
+  }
+}
 module.exports = {
   getMisKpis,
   getMisSolicitudes,
   getDetalleSolicitud,
   postComentario,
   cancelarSolicitud,
+  postArchivos,
+  postEvaluacion,
+  cerrarSolicitud,
+  reabrirSolicitud,
 };

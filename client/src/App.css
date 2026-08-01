@@ -203,7 +203,7 @@ button {
    SIDEBAR — Enterprise 2026
 ══════════════════════════════════════════════ */
 .sidebar {
-  width: 70px;
+  width: 60px;
   background: var(--sb-bg);
   border-right: 0.5px solid var(--sb-border);
   display: flex;
@@ -410,10 +410,11 @@ button {
   opacity: 1;
 }
 
+/* BOTTOM */
 .sidebar-bottom {
   flex-shrink: 0;
   border-top: 0.5px solid var(--sb-border);
-  padding: 16px 12px 20px;
+  padding: 10px 8px 12px;
   width: 100%;
   min-width: 248px;
 }
@@ -501,15 +502,15 @@ button {
 /* Popover — fixed para evitar overflow:hidden del sidebar */
 .sb-support-popover {
   position: fixed;
-  left: 76px;
+  left: 68px;
   width: 220px;
   background: var(--bg-surface, #fff);
   border: 0.5px solid var(--border);
   border-radius: 11px;
-  padding: 10px;
+  padding: 6px;
   display: none;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   z-index: 999;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.12),
@@ -543,7 +544,7 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px 12px;
+  padding: 9px 10px;
   border-radius: 8px;
   cursor: pointer;
   border: none;

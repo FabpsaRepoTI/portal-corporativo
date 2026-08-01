@@ -48,6 +48,12 @@ function PantallaExito({ folio, config, onNueva }) {
             <i className="ti ti-plus" /> Nuevo reporte
           </button>
           <button
+            className="sp-btn sp-btn--ghost"
+            onClick={() => navigate("/mesa-de-servicio")}
+          >
+            <i className="ti ti-arrow-left" /> Mesa de Servicio
+          </button>
+          <button
             className="sp-btn sp-btn--primary"
             style={{ background: color, borderColor: color }}
             onClick={() => navigate("/mesa-de-servicio/mis-solicitudes")}

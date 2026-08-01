@@ -47,6 +47,9 @@ app.use("/api/solicitudes", solicitudesTIRoutes);
 const solicitudesUsuarioRoutes = require("./routes/solicitudesUsuario.routes");
 app.use("/api/solicitudes-usuario", solicitudesUsuarioRoutes);
 
+const hwUsuarioRoutes = require("./routes/hardwareUsuario.routes");
+app.use("/api/solicitudes-usuario/hardware", hwUsuarioRoutes);
+
 app.get("/", (req, res) => {
   res.send("API FABPSA funcionando en intranet");
 });

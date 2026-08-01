@@ -106,17 +106,17 @@ function AppLayout() {
             <Route
               path="/mesa-de-servicio/admin"
               element={
-                <ProtectedRoute>
+                <PageLoader>
                   <MesaAyudaAdminPage />
-                </ProtectedRoute>
+                </PageLoader>
               }
             />
             <Route
               path="/mesa-de-servicio/mis-solicitudes"
               element={
-                <ProtectedRoute>
+                <PageLoader>
                   <MisSolicitudesPage />
-                </ProtectedRoute>
+                </PageLoader>
               }
             />
           </Routes>

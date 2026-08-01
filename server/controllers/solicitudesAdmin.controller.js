@@ -54,11 +54,25 @@ async function asignar(req, res) {
   }
 }
 
+// ── MODIFICADO: pasa loginSolicitante para validar asignación ──
 async function cambiarEstatus(req, res) {
   try {
     const { idEstatus } = req.body;
     if (!idEstatus) return res.status(400).json({ ok: false });
-    await svc.cambiarEstatus(parseInt(req.params.id), idEstatus);
+
+    const result = await svc.cambiarEstatus(
+      parseInt(req.params.id),
+      idEstatus,
+      req.user.login, // ← nuevo: para validar que sea el asignado
+    );
+
+    // El service devuelve { ok: false, code, message } si hay validación fallida
+    if (result && !result.ok) {
+      return res
+        .status(422)
+        .json({ ok: false, code: result.code, message: result.message });
+    }
+
     res.json({ ok: true });
   } catch (err) {
     console.error("[mesa-admin] estatus:", err);
@@ -80,7 +94,6 @@ async function cambiarPrioridad(req, res) {
 
 async function agregarComentario(req, res) {
   try {
-    //Desestructuramos const comentario = req.boy.comentario;
     const { comentario } = req.body;
     if (!comentario?.trim()) return res.status(400).json({ ok: false });
     await svc.agregarComentario(
@@ -140,6 +153,29 @@ async function transferir(req, res) {
   }
 }
 
+// ── NUEVO: escalar ──────────────────────────────────────────────
+async function escalar(req, res) {
+  try {
+    const { escalaA, comentario } = req.body;
+    if (!escalaA?.trim()) {
+      return res
+        .status(400)
+        .json({ ok: false, message: "Debes indicar a quién se escala." });
+    }
+    await svc.escalar(
+      parseInt(req.params.id),
+      escalaA.trim(),
+      comentario ?? "",
+      req.user.login,
+      req.user.name ?? req.user.login,
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("[mesa-admin] escalar:", err);
+    res.status(500).json({ ok: false });
+  }
+}
+
 module.exports = {
   getKPIs,
   getSolicitudes,
@@ -151,43 +187,5 @@ module.exports = {
   agregarBitacora,
   getTecnicosSistemas,
   transferir,
+  escalar,
 };
-
-/*
-React
-   │
-   │ POST /mesa-admin/15/comentario
-   │
-   ▼
-Controller (agregarComentario)
-   │
-   ├── Obtiene req.body.comentario
-   │
-   ├── ¿Está vacío?
-   │      │
-   │      ├── Sí → HTTP 400
-   │      │
-   │      └── No
-   │
-   ├── Obtiene el usuario autenticado (req.user)
-   │
-   ├── Llama al Service
-   │
-   ▼
-MesaAdminService
-   │
-   ▼
-SQL Server
-   │
-   ▼
-Inserta el comentario
-   │
-   ▼
-Controller
-   │
-   ▼
-HTTP 200
-{
-   "ok": true
-}
- */
