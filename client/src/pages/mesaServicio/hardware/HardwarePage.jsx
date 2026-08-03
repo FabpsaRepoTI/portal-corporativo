@@ -1,11 +1,11 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getCatalogo,
   enviarSolicitud,
 } from "../../../services/hardwareService";
 import { AuthContext } from "../../../context/AuthContext";
 import "./HardwareSolicitudes.css";
-//import { MOTIVOS, ICON_MAP } from "../../../data/staticData.js";
 
 export const MOTIVOS = [
   "Necesito un equipo nuevo",
@@ -20,12 +20,18 @@ export const ICON_MAP = {
   webcam: "ti-camera",
   laptop: "ti-device-laptop",
   monitor: "ti-device-tv",
+  pantalla: "ti-device-tv",
   impresora: "ti-printer",
   audífonos: "ti-headphones",
   headset: "ti-headphones",
   disco: "ti-database",
   usb: "ti-usb",
   cable: "ti-plug",
+  pc: "ti-device-desktop-analytics",
+  proyector: "ti-device-projector",
+  teléfono: "ti-phone",
+  base: "ti-device-phone",
+  adaptador: "ti-plug",
   default: "ti-device-desktop",
 };
 
@@ -46,31 +52,35 @@ function groupBy(arr, key) {
   }, {});
 }
 
+function delay(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+const PROC_STEPS = [
+  "Validando información",
+  "Guardando solicitud",
+  "Generando folio",
+  "Notificando al equipo de TI",
+  "Solicitud registrada",
+];
+
 export default function HardwarePage() {
   const { user } = useContext(AuthContext);
-
-  const [step, setStep] = useState(1);
+  const navigate = useNavigate();
   const [catalogo, setCatalogo] = useState([]);
   const [loadingCatalogo, setLoadingCatalogo] = useState(true);
   const [errorCatalogo, setErrorCatalogo] = useState(null);
 
   const [seleccionados, setSeleccionados] = useState({});
   const [catFiltro, setCatFiltro] = useState("Todos");
+  const [busqueda, setBusqueda] = useState("");
   const [motivo, setMotivo] = useState("");
   const [observaciones, setObservaciones] = useState("");
 
-  const [fase, setFase] = useState("wizard"); // wizard | processing | success
+  const [fase, setFase] = useState("wizard");
   const [procStep, setProcStep] = useState(0);
   const [folio, setFolio] = useState("");
   const [errorEnvio, setErrorEnvio] = useState(null);
-
-  const PROC_STEPS = [
-    "Validando información",
-    "Guardando solicitud",
-    "Generando folio",
-    "Notificando al equipo de TI",
-    "Solicitud registrada",
-  ];
 
   useEffect(() => {
     getCatalogo()
@@ -79,16 +89,30 @@ export default function HardwarePage() {
       .finally(() => setLoadingCatalogo(false));
   }, []);
 
-  const categorias = ["Todos", ...Object.keys(groupBy(catalogo, "categoria"))];
-  const catalogoFiltrado =
-    catFiltro === "Todos"
-      ? catalogo
-      : catalogo.filter((a) => a.categoria === catFiltro);
-  const grupos = groupBy(catalogoFiltrado, "categoria");
+  // ── Derivados ─────────────────────────────────────────
+  const grupos = groupBy(catalogo, "categoria");
+  const categorias = ["Todos", ...Object.keys(grupos)];
 
-  const totalSeleccionados =
-    Object.values(seleccionados).filter(Boolean).length;
+  const catalogoFiltrado = catalogo
+    .filter((a) => catFiltro === "Todos" || a.categoria === catFiltro)
+    .filter((a) =>
+      busqueda
+        ? a.nombreArticulo.toLowerCase().includes(busqueda.toLowerCase())
+        : true,
+    );
 
+  const gruposFiltrados = groupBy(catalogoFiltrado, "categoria");
+
+  const conteosPorCat = catalogo.reduce((acc, a) => {
+    acc[a.categoria] = (acc[a.categoria] || 0) + 1;
+    return acc;
+  }, {});
+
+  const articulosSeleccionados = Object.values(seleccionados).filter(Boolean);
+  const totalSeleccionados = articulosSeleccionados.length;
+  const puedeEnviar = totalSeleccionados > 0 && motivo !== "";
+
+  // ── Handlers ──────────────────────────────────────────
   function toggleArticulo(art) {
     setSeleccionados((prev) => ({
       ...prev,
@@ -103,14 +127,15 @@ export default function HardwarePage() {
     }));
   }
 
-  const articulosSeleccionados = Object.values(seleccionados).filter(Boolean);
+  function removeArticulo(id) {
+    setSeleccionados((prev) => ({ ...prev, [id]: null }));
+  }
 
   async function handleEnviar() {
     setFase("processing");
     setProcStep(0);
     setErrorEnvio(null);
 
-    // Simular pasos visuales
     for (let i = 0; i < PROC_STEPS.length - 1; i++) {
       await delay(420);
       setProcStep(i + 1);
@@ -136,227 +161,218 @@ export default function HardwarePage() {
         "Ocurrió un error al registrar la solicitud. Intenta de nuevo.",
       );
       setFase("wizard");
-      setStep(3);
     }
   }
 
-  function delay(ms) {
-    return new Promise((r) => setTimeout(r, ms));
-  }
-
   function resetWizard() {
-    setStep(1);
     setSeleccionados({});
-    setMotivo(MOTIVOS[0]);
+    setMotivo("");
     setObservaciones("");
+    setBusqueda("");
+    setCatFiltro("Todos");
     setFase("wizard");
     setProcStep(0);
     setFolio("");
+    setErrorEnvio(null);
   }
 
-  // ── RENDER ──────────────────────────────────────────────
-
-  if (fase === "processing")
-    return (
-      <div className="hw-wrapper">
-        <div className="hw-wz">
-          <div className="hw-processing">
-            <div className="hw-proc-ring" />
-            <ul className="hw-proc-list">
-              {PROC_STEPS.map((label, i) => (
-                <li
-                  key={i}
-                  className={`hw-proc-item ${i < procStep ? "done" : i === procStep ? "active" : ""}`}
-                >
-                  <span className="hw-proc-icon">
-                    {i < procStep ? (
-                      <i className="ti ti-check" aria-hidden="true" />
-                    ) : i === procStep ? (
-                      <span className="hw-proc-dot" />
-                    ) : (
-                      <span className="hw-proc-dot faint" />
-                    )}
-                  </span>
-                  {label}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-    );
-
-  if (fase === "success")
-    return (
-      <div className="hw-wz">
-        <div className="hw-success">
-          <div className="hw-success-icon">
-            <i className="ti ti-check" aria-hidden="true" />
-          </div>
-          <h2 className="hw-success-title">Solicitud enviada correctamente</h2>
-          <p className="hw-success-sub">
-            El equipo de Tecnologías de la Información ya fue notificado y dará
-            seguimiento a tu requerimiento.
-          </p>
-          <div className="hw-folio-box">
-            <div className="hw-folio-label">Folio de seguimiento</div>
-            <div className="hw-folio-val">{folio}</div>
-          </div>
-          <p className="hw-success-hint">
-            Guarda este folio para cualquier seguimiento con el equipo de TI.
-          </p>
-          <button className="hw-btn hw-btn-primary" onClick={resetWizard}>
-            Nueva solicitud
-          </button>
-        </div>
-      </div>
-    );
-
+  // ═══════════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════════
   return (
-    <div className="hw-wz">
-      {/* Header */}
-      <div className="hw-head">
-        <div className="hw-eyebrow">Mesa de Servicio · Hardware</div>
-        <h1 className="hw-title">
-          {step === 1 && "Selecciona los artículos"}
-          {step === 2 && "Agrega el detalle"}
-          {step === 3 && "Confirma tu solicitud"}
-        </h1>
+    <div className="hw-page">
+      {/* ── Título de página ────────────────────────── */}
+      <div className="mds-header">
+        <button
+          className="mds-back"
+          onClick={() => navigate("/mesa-de-servicio")}
+        >
+          <i className="ti ti-arrow-left" />
+          Volver a la Mesa de Ayuda
+        </button>
+        <div className="mds-hero">
+          <div className="mds-hero-icon">
+            <i className="ti ti-device-laptop" />
+          </div>
+          <div className="mds-hero-text">
+            <h1 className="mds-hero-title">Nueva solicitud de hardware</h1>
+            <p className="mds-hero-desc">
+              Selecciona los recursos tecnológicos que necesitas. El equipo de
+              Sistemas evaluará y gestionará tu requerimiento.
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Stepper */}
-      <div className="hw-stepper">
-        {[1, 2, 3].map((n, idx) => (
-          <div key={n} style={{ display: "contents" }}>
-            <div
-              className={`hw-step ${step === n ? "active" : step > n ? "done" : ""}`}
-            >
-              <div className="hw-step-circle">
-                {step > n ? (
-                  <i className="ti ti-check" aria-hidden="true" />
-                ) : (
-                  n
-                )}
-              </div>
-              <span className="hw-step-label">
-                {["Artículos", "Detalle", "Confirmación"][idx]}
-              </span>
+      {/* ── Layout principal ────────────────────────── */}
+      <div className="hw-layout">
+        {/* ══ COLUMNA IZQUIERDA — resource picker ══ */}
+        <div className="hw-picker">
+          {/* Barra de búsqueda + filtro ──────────── */}
+          <div className="hw-toolbar">
+            <div className="hw-search-wrap">
+              <i className="ti ti-search" aria-hidden="true" />
+              <input
+                className="hw-search"
+                type="text"
+                placeholder="Buscar recurso…"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                autoComplete="off"
+              />
+              {busqueda && (
+                <button
+                  className="hw-search-clear"
+                  onClick={() => setBusqueda("")}
+                  aria-label="Limpiar búsqueda"
+                >
+                  <i className="ti ti-x" aria-hidden="true" />
+                </button>
+              )}
             </div>
-            {idx < 2 && (
-              <div className={`hw-connector ${step > n ? "filled" : ""}`}>
-                <div className="hw-connector-fill" />
+
+            <div className="hw-tabs" role="tablist">
+              {categorias.map((c) => (
+                <button
+                  key={c}
+                  role="tab"
+                  aria-selected={catFiltro === c}
+                  className={`hw-tab${catFiltro === c ? " hw-tab--on" : ""}`}
+                  onClick={() => setCatFiltro(c)}
+                >
+                  {c}
+                  {c !== "Todos" && (
+                    <span className="hw-tab-cnt">{conteosPorCat[c] || 0}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Lista de recursos ──────────────────── */}
+          <div className="hw-list-wrap">
+            {loadingCatalogo && (
+              <div className="hw-state">
+                <div className="hw-state-spinner" />
+                <span>Cargando recursos…</span>
               </div>
             )}
-          </div>
-        ))}
-      </div>
 
-      {/* ── PASO 1: Catálogo ── */}
-      {step === 1 && (
-        <>
-          <div className="hw-body hw-body-split">
-            <div className="hw-catalog">
-              {loadingCatalogo && (
-                <p className="hw-hint">Cargando catálogo...</p>
-              )}
-              {errorCatalogo && <p className="hw-error">{errorCatalogo}</p>}
-              {!loadingCatalogo && !errorCatalogo && (
-                <>
-                  <div className="hw-cat-filter">
-                    {categorias.map((c) => (
-                      <button
-                        key={c}
-                        className={`hw-chip ${catFiltro === c ? "on" : ""}`}
-                        onClick={() => setCatFiltro(c)}
-                      >
-                        {c}
-                      </button>
-                    ))}
+            {errorCatalogo && (
+              <div className="hw-state hw-state--error">
+                <i className="ti ti-alert-circle" aria-hidden="true" />
+                <span>{errorCatalogo}</span>
+              </div>
+            )}
+
+            {!loadingCatalogo && !errorCatalogo && (
+              <>
+                {catalogoFiltrado.length === 0 ? (
+                  <div className="hw-state">
+                    <i className="ti ti-search-off" aria-hidden="true" />
+                    <span>
+                      Sin resultados para "<strong>{busqueda}</strong>"
+                    </span>
                   </div>
-                  {Object.entries(grupos).map(([cat, items]) => (
-                    <div key={cat} className="hw-group">
-                      <div className="hw-group-label">{cat}</div>
-                      <div className="hw-grid">
+                ) : (
+                  <div className="hw-list">
+                    {Object.entries(gruposFiltrados).map(([cat, items]) => (
+                      <div key={cat} className="hw-group">
+                        {/* Solo mostrar encabezado de grupo si no hay filtro activo o si hay búsqueda */}
+                        {(catFiltro === "Todos" || busqueda) && (
+                          <div className="hw-group-header" role="rowgroup">
+                            {cat}
+                          </div>
+                        )}
                         {items.map((art) => {
                           const sel = !!seleccionados[art.idArticulo];
                           return (
                             <div
                               key={art.idArticulo}
-                              className={`hw-card ${sel ? "selected" : ""}`}
+                              className={`hw-row${sel ? " hw-row--sel" : ""}`}
                               onClick={() => toggleArticulo(art)}
                               role="checkbox"
                               aria-checked={sel}
                               tabIndex={0}
                               onKeyDown={(e) =>
-                                e.key === "Enter" && toggleArticulo(art)
+                                (e.key === "Enter" || e.key === " ") &&
+                                toggleArticulo(art)
                               }
                             >
-                              {sel && (
-                                <div className="hw-check">
-                                  <i
-                                    className="ti ti-check"
-                                    aria-hidden="true"
-                                  />
-                                </div>
-                              )}
-                              {art.requiereAutorizacion === "S" && (
-                                <div
-                                  className="hw-auth-badge"
-                                  title="Requiere autorización"
-                                >
-                                  <i
-                                    className="ti ti-shield-check"
-                                    aria-hidden="true"
-                                  />
-                                </div>
-                              )}
-                              <div className="hw-card-icon">
+                              {/* Checkbox nativo estilizado */}
+                              <div
+                                className={`hw-row-check${sel ? " hw-row-check--on" : ""}`}
+                                aria-hidden="true"
+                              >
+                                {sel && <i className="ti ti-check" />}
+                              </div>
+
+                              {/* Ícono del recurso */}
+                              <div className="hw-row-ico">
                                 <i
                                   className={`ti ${getIcon(art.nombreArticulo)}`}
                                   aria-hidden="true"
                                 />
                               </div>
-                              <div className="hw-card-name">
-                                {art.nombreArticulo}
+
+                              {/* Nombre y meta */}
+                              <div className="hw-row-info">
+                                <span className="hw-row-name">
+                                  {art.nombreArticulo}
+                                </span>
+                                {art.requiereAutorizacion === "S" && (
+                                  <span className="hw-row-auth"></span>
+                                )}
                               </div>
+
+                              {/* Categoría */}
+                              <span className="hw-row-cat">
+                                {art.categoria}
+                              </span>
                             </div>
                           );
                         })}
                       </div>
-                    </div>
-                  ))}
-                </>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* ══ COLUMNA DERECHA — panel ══ */}
+        <aside className="hw-panel">
+          {/* Artículos solicitados ──────────────── */}
+          <div className="hw-panel-block">
+            <div className="hw-panel-title">
+              <i className="ti ti-clipboard-list" aria-hidden="true" />
+              Artículos solicitados
+              {totalSeleccionados > 0 && (
+                <span className="hw-panel-count">{totalSeleccionados}</span>
               )}
             </div>
 
-            {/* Carrito */}
-            <aside className="hw-cart">
-              <div className="hw-cart-head">
-                <div className="hw-cart-icon">
-                  <i className="ti ti-shopping-cart" aria-hidden="true" />
-                </div>
-                <span className="hw-cart-title">Seleccionados</span>
-                <span className="hw-cart-count">{totalSeleccionados}</span>
+            {articulosSeleccionados.length === 0 ? (
+              <div className="hw-panel-empty">
+                <i className="ti ti-circle-dashed" aria-hidden="true" />
+                <span>Ningún artículo seleccionado</span>
               </div>
-              {articulosSeleccionados.length === 0 ? (
-                <p className="hw-cart-empty">Ningún artículo seleccionado</p>
-              ) : (
-                articulosSeleccionados.map((art) => (
-                  <div key={art.idArticulo} className="hw-cart-item">
-                    <div>
-                      <div className="hw-cart-name">{art.nombreArticulo}</div>
-                      {art.requiereAutorizacion === "S" && (
-                        <div className="hw-cart-auth">
-                          <i
-                            className="ti ti-shield-check"
-                            aria-hidden="true"
-                          />{" "}
-                          Requiere autorización
-                        </div>
-                      )}
-                    </div>
-                    <div className="hw-qty-ctrl">
+            ) : (
+              <div className="hw-panel-items">
+                {articulosSeleccionados.map((art) => (
+                  <div key={art.idArticulo} className="hw-panel-row">
+                    <i
+                      className={`ti ${getIcon(art.nombreArticulo)} hw-panel-row-ico`}
+                      aria-hidden="true"
+                    />
+                    <span className="hw-panel-row-name">
+                      {art.nombreArticulo}
+                    </span>
+                    <div className="hw-qty">
                       <button
+                        className="hw-qty-btn"
+                        aria-label="Reducir cantidad"
                         onClick={(e) => {
                           e.stopPropagation();
                           setCantidad(art.idArticulo, art.cantidad - 1);
@@ -364,8 +380,10 @@ export default function HardwarePage() {
                       >
                         −
                       </button>
-                      <span>{art.cantidad}</span>
+                      <span className="hw-qty-num">{art.cantidad}</span>
                       <button
+                        className="hw-qty-btn"
+                        aria-label="Aumentar cantidad"
                         onClick={(e) => {
                           e.stopPropagation();
                           setCantidad(art.idArticulo, art.cantidad + 1);
@@ -374,134 +392,153 @@ export default function HardwarePage() {
                         +
                       </button>
                     </div>
+                    <button
+                      className="hw-panel-remove"
+                      aria-label={`Eliminar ${art.nombreArticulo}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeArticulo(art.idArticulo);
+                      }}
+                    >
+                      <i className="ti ti-x" aria-hidden="true" />
+                    </button>
                   </div>
-                ))
-              )}
-            </aside>
-          </div>
-          <div className="hw-foot">
-            <span className="hw-hint">
-              {totalSeleccionados} artículo{totalSeleccionados !== 1 ? "s" : ""}{" "}
-              seleccionado{totalSeleccionados !== 1 ? "s" : ""}
-            </span>
-            <button
-              className="hw-btn hw-btn-primary"
-              onClick={() => setStep(2)}
-              disabled={totalSeleccionados === 0}
-            >
-              Continuar <i className="ti ti-arrow-right" aria-hidden="true" />
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* ── PASO 2: Detalle ── */}
-      {step === 2 && (
-        <>
-          <div className="hw-body">
-            <div className="hw-field-group">
-              <div className="hw-field">
-                <label className="hw-label">Motivo de la solicitud</label>
-                <select
-                  className="hw-select"
-                  value={motivo}
-                  onChange={(e) => setMotivo(e.target.value)}
-                  required
-                >
-                  <option value="" disabled>
-                    Selecciona por favor...
-                  </option>
-                  {MOTIVOS.map((m) => (
-                    <option key={m}>{m}</option>
-                  ))}
-                </select>
+                ))}
               </div>
-              <div className="hw-field">
-                <label className="hw-label">
-                  Observaciones <span className="hw-label-opt">(opcional)</span>
-                </label>
-                <textarea
-                  className="hw-textarea"
-                  placeholder="Especifica detalles adicionales, urgencia u otra información relevante"
-                  value={observaciones}
-                  onChange={(e) => setObservaciones(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="hw-foot">
-            <button className="hw-btn hw-btn-ghost" onClick={() => setStep(1)}>
-              <i className="ti ti-arrow-left" aria-hidden="true" /> Atrás
-            </button>
-            <button
-              className="hw-btn hw-btn-primary"
-              onClick={() => setStep(3)}
-            >
-              Continuar <i className="ti ti-arrow-right" aria-hidden="true" />
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* ── PASO 3: Confirmación ── */}
-      {step === 3 && (
-        <>
-          <div className="hw-body">
-            {errorEnvio && (
-              <p className="hw-error" style={{ marginBottom: "12px" }}>
-                {errorEnvio}
-              </p>
             )}
-            <div className="hw-summary">
-              <div className="hw-summary-row">
-                <span className="hw-summary-label">Solicitante</span>
-                <span className="hw-summary-val">
-                  {user?.name || user?.login}
-                </span>
-              </div>
-              <div className="hw-summary-row">
-                <span className="hw-summary-label">Área</span>
-                <span className="hw-summary-val">
-                  {user?.area || user?.sitio || "—"}
-                </span>
-              </div>
-              <div className="hw-summary-row">
-                <span className="hw-summary-label">Motivo</span>
-                <span className="hw-summary-val">{motivo}</span>
-              </div>
-              {observaciones && (
-                <div className="hw-summary-row">
-                  <span className="hw-summary-label">Observaciones</span>
-                  <span className="hw-summary-val">{observaciones}</span>
-                </div>
-              )}
-              <div className="hw-summary-row hw-summary-art">
-                <span className="hw-summary-label">Artículos</span>
-                <div className="hw-summary-art-list">
-                  {articulosSeleccionados.map((a) => (
-                    <div key={a.idArticulo} className="hw-summary-art-item">
-                      <span>{a.nombreArticulo}</span>
-                      <span className="hw-summary-qty">×{a.cantidad}</span>
-                      {a.requiereAutorizacion === "S" && (
-                        <span className="hw-summary-req">
-                          Requiere autorización
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+          </div>
+
+          {/* Justificación ──────────────────────── */}
+          <div className="hw-panel-block">
+            <div className="hw-panel-title">
+              <i className="ti ti-notes" aria-hidden="true" />
+              Justificación del requerimiento
+            </div>
+
+            <div className="hw-field">
+              <label className="hw-label" htmlFor="hw-motivo">
+                Motivo
+              </label>
+              <select
+                id="hw-motivo"
+                className="hw-select"
+                value={motivo}
+                onChange={(e) => setMotivo(e.target.value)}
+              >
+                <option value="" disabled>
+                  Selecciona un motivo…
+                </option>
+                {MOTIVOS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="hw-field">
+              <label className="hw-label" htmlFor="hw-obs">
+                Observaciones
+                <span className="hw-label-opt"> (opcional)</span>
+              </label>
+              <textarea
+                id="hw-obs"
+                className="hw-textarea"
+                placeholder="Contexto adicional, urgencia u otra información relevante…"
+                value={observaciones}
+                onChange={(e) => setObservaciones(e.target.value)}
+                maxLength={300}
+              />
             </div>
           </div>
-          <div className="hw-foot">
-            <button className="hw-btn hw-btn-ghost" onClick={() => setStep(2)}>
-              <i className="ti ti-arrow-left" aria-hidden="true" /> Atrás
+
+          {/* CTA ────────────────────────────────── */}
+          <div className="hw-panel-footer">
+            {errorEnvio && <p className="hw-error">{errorEnvio}</p>}
+            <button
+              className="hw-submit"
+              onClick={handleEnviar}
+              disabled={!puedeEnviar}
+            >
+              <i className="ti ti-send" aria-hidden="true" />
+              Enviar requerimiento
             </button>
-            <button className="hw-btn hw-btn-primary" onClick={handleEnviar}>
-              <i className="ti ti-send" aria-hidden="true" /> Enviar solicitud
-            </button>
+            <p className="hw-submit-note">
+              <i className="ti ti-mail" aria-hidden="true" />
+              El equipo de Sistemas recibirá una notificación
+            </p>
           </div>
-        </>
+        </aside>
+      </div>
+
+      {/* ══ OVERLAY — Procesando ══ */}
+      {fase === "processing" && (
+        <div className="hw-overlay" role="status" aria-live="polite">
+          <div className="hw-proc-card">
+            <div className="hw-proc-ring" />
+            <ul className="hw-proc-list">
+              {PROC_STEPS.map((label, i) => (
+                <li
+                  key={i}
+                  className={`hw-proc-item${
+                    i < procStep
+                      ? " hw-proc-item--done"
+                      : i === procStep
+                        ? " hw-proc-item--active"
+                        : ""
+                  }`}
+                >
+                  <span className="hw-proc-ico">
+                    {i < procStep ? (
+                      <i className="ti ti-check" aria-hidden="true" />
+                    ) : (
+                      <span className="hw-proc-dot" />
+                    )}
+                  </span>
+                  {label}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* ══ OVERLAY — Éxito ══ */}
+      {fase === "success" && (
+        <div className="hw-overlay">
+          <div className="hw-success-card">
+            <div className="hw-success-ico">
+              <i className="ti ti-check" aria-hidden="true" />
+            </div>
+            <h2 className="hw-success-h">Requerimiento registrado</h2>
+            <p className="hw-success-p">
+              El equipo de Tecnologías de la Información fue notificado y dará
+              seguimiento a tu requerimiento.
+            </p>
+            <div className="hw-folio-box">
+              <div className="hw-folio-label">Folio de seguimiento</div>
+              <div className="hw-folio-val">{folio}</div>
+            </div>
+            <p className="hw-success-hint">
+              Puedes consultar el estado en Mesa de Servicio → Mis solicitudes.
+            </p>
+            <div className="hw-success-actions">
+              <button
+                className="hw-btn-primary"
+                onClick={() =>
+                  (window.location.href =
+                    "/mesa-de-servicio/mis-solicitudes?tab=hardware")
+                }
+              >
+                <i className="ti ti-list-check" aria-hidden="true" />
+                Ver mis solicitudes
+              </button>
+              <button className="hw-btn-ghost" onClick={resetWizard}>
+                Nuevo requerimiento
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

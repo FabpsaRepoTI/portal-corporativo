@@ -1,8 +1,9 @@
 import { useRef, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { useNotifications } from "../hooks/useNotifications";
 import NotificationPanel from "./NotificationPanel";
 import NotificationToast from "./NotificationToast";
-import "./NotificationBell.css";
+import "../style/NotificationBell.css";
 
 export default function NotificationBell() {
   const {
@@ -57,13 +58,15 @@ export default function NotificationBell() {
         )}
       </div>
 
-      {/* Toast fuera del bell-wrap para que no quede dentro del panel */}
-      {toastNotif && (
-        <NotificationToast
-          notificacion={toastNotif}
-          onClose={() => setToastNotif(null)}
-        />
-      )}
+      {/* Toast via portal — se renderiza directo en document.body */}
+      {toastNotif &&
+        ReactDOM.createPortal(
+          <NotificationToast
+            notificacion={toastNotif}
+            onClose={() => setToastNotif(null)}
+          />,
+          document.body,
+        )}
     </>
   );
 }

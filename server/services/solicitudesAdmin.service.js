@@ -164,7 +164,6 @@ async function getSolicitudDetalle(idSolicitud) {
 async function asignar(idSolicitud, tecnicoLogin, nombreTecnico) {
   const pool = await getPool();
 
-  // Obtener datos del ticket para la notificación
   const solRes = await pool
     .request()
     .input("idSolicitud", idSolicitud)
@@ -186,7 +185,6 @@ async function asignar(idSolicitud, tecnicoLogin, nombreTecnico) {
       WHERE idSolicitud = @idSolicitud
     `);
 
-  // Notificar al usuario solicitante
   if (sol) {
     await crearNotificacion({
       loginDestino: sol.idUsuario,
@@ -195,7 +193,7 @@ async function asignar(idSolicitud, tecnicoLogin, nombreTecnico) {
       idSolicitud,
       titulo: "Solicitud asignada",
       descripcion: `Tu solicitud fue asignada a ${nombreTecnico}.`,
-      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
+      urlDestino: `/mesa-de-servicio/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
     });
   }
 }
@@ -224,7 +222,6 @@ async function cambiarEstatus(idSolicitud, idEstatus, loginSolicitante) {
       };
   }
 
-  // Obtener datos del ticket para la notificación
   const solRes = await pool
     .request()
     .input("idSolicitud", sql.Int, idSolicitud)
@@ -245,7 +242,6 @@ async function cambiarEstatus(idSolicitud, idEstatus, loginSolicitante) {
       WHERE idSolicitud = @idSolicitud
     `);
 
-  // Mapa de estatus a texto legible
   const ESTATUS_TEXTO = {
     1: "Abierta",
     2: "En progreso",
@@ -256,7 +252,6 @@ async function cambiarEstatus(idSolicitud, idEstatus, loginSolicitante) {
     8: "Escalada",
   };
 
-  // Tipo de notificación según estatus
   const tipoMap = {
     3: TIPOS.TICKET_CERRADO,
     4: TIPOS.TICKET_CERRADO,
@@ -272,7 +267,7 @@ async function cambiarEstatus(idSolicitud, idEstatus, loginSolicitante) {
       idSolicitud,
       titulo: "Estatus actualizado",
       descripcion: `Tu solicitud cambió a "${ESTATUS_TEXTO[idEstatus] ?? "Actualizada"}".`,
-      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
+      urlDestino: `/mesa-de-servicio/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
     });
   }
 
@@ -288,7 +283,6 @@ async function escalar(
 ) {
   const pool = await getPool();
 
-  // Obtener datos del ticket
   const solRes = await pool
     .request()
     .input("idSolicitud", sql.Int, idSolicitud)
@@ -322,7 +316,6 @@ async function escalar(
       VALUES (@idSolicitud, @idUsuario, @nombreUsuario, @nota)
     `);
 
-  // Notificar al usuario solicitante
   if (sol) {
     await crearNotificacion({
       loginDestino: sol.idUsuario,
@@ -331,7 +324,7 @@ async function escalar(
       idSolicitud,
       titulo: "Solicitud escalada",
       descripcion: `Tu solicitud fue escalada a ${escalaA}.`,
-      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=historial`,
+      urlDestino: `/mesa-de-servicio/mis-solicitudes?folio=${sol.folio}&tab=historial`,
     });
   }
 
@@ -350,7 +343,6 @@ async function cambiarPrioridad(idSolicitud, idPrioridad) {
   if (!pr.recordset.length) throw new Error("Prioridad no encontrada");
   const { slaRespuestaHrs, slaResolucionHrs, prioridad } = pr.recordset[0];
 
-  // Obtener datos del ticket
   const solRes = await pool
     .request()
     .input("idSolicitud", idSolicitud)
@@ -382,7 +374,7 @@ async function cambiarPrioridad(idSolicitud, idPrioridad) {
       idSolicitud,
       titulo: "Prioridad actualizada",
       descripcion: `La prioridad de tu solicitud cambió a "${prioridad}".`,
-      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
+      urlDestino: `/mesa-de-servicio/mis-solicitudes?folio=${sol.folio}&tab=detalle`,
     });
   }
 }
@@ -396,7 +388,6 @@ async function agregarComentario(
 ) {
   const pool = await getPool();
 
-  // Obtener datos del ticket para notificar al solicitante
   const solRes = await pool
     .request()
     .input("idSolicitud", idSolicitud)
@@ -416,7 +407,6 @@ async function agregarComentario(
       VALUES (@idSolicitud, @idUsuario, @nombreUsuario, @esInterno, @comentario)
     `);
 
-  // Solo notificar si el comentario NO es interno y el que comenta no es el solicitante
   if (!esInterno && sol && sol.idUsuario !== idUsuario) {
     await crearNotificacion({
       loginDestino: sol.idUsuario,
@@ -425,7 +415,7 @@ async function agregarComentario(
       idSolicitud,
       titulo: "Nuevo comentario en tu solicitud",
       descripcion: `${nombreUsuario}: "${comentario.substring(0, 80)}${comentario.length > 80 ? "…" : ""}"`,
-      urlDestino: `/mis-solicitudes?folio=${sol.folio}&tab=comentarios`,
+      urlDestino: `/mesa-de-servicio/mis-solicitudes?folio=${sol.folio}&tab=comentarios`,
     });
   }
 }

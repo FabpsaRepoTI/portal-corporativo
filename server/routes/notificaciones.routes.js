@@ -3,32 +3,25 @@ const router = express.Router();
 const { addClient } = require("../sse.manager");
 const svc = require("../services/notificaciones.service");
 
-// SSE — acepta token por query param porque EventSource no soporta headers
+// SSE
 router.get("/stream", (req, res) => {
-  // Headers CORS explícitos para SSE
-  const origin = req.headers.origin || "http://localhost:3000";
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Connection", "keep-alive");
-  res.setHeader("X-Accel-Buffering", "no");
-  res.flushHeaders();
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.write(": ping\n\n");
 
   const token = req.query.token;
-  if (!token) {
-    res.write(`data: ${JSON.stringify({ error: "sin token" })}\n\n`);
-    return res.end();
-  }
+  if (!token) return res.end();
 
   try {
     const jwt = require("jsonwebtoken");
     const { JWT_SECRET } = require("../middleware/auth");
     const payload = jwt.verify(token, JWT_SECRET);
-    const { addClient } = require("../sse.manager");
     addClient(payload.login, res);
-  } catch (err) {
-    res.write(`data: ${JSON.stringify({ error: "token invalido" })}\n\n`);
+  } catch {
     res.end();
   }
 });

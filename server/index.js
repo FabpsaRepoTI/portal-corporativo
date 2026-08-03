@@ -7,6 +7,19 @@ const { getPool, sql } = require("./db");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// ── SSE CORS fix — debe ir ANTES del middleware cors general ──
+app.options("/api/notificaciones/stream", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+  res.sendStatus(200);
+});
+app.use("/api/notificaciones/stream", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
 app.use(
   cors({
     origin: [
@@ -18,18 +31,6 @@ app.use(
     credentials: true,
   }),
 );
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  );
-  next();
-});
-
-app.use(express.json());
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/public")));

@@ -2,8 +2,8 @@
   "name": "fabpsa-intranet",
   "version": "4.0.0",
   "private": true,
+  "proxy": "http://localhost:3001",
   "homepage": "/portal-corporativo/fabpsa/",
-  
   "dependencies": {
     "axios": "^1.18.1",
     "react": "^18.2.0",

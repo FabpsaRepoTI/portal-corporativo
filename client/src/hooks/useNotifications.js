@@ -1,8 +1,17 @@
 import { useState, useEffect, useContext, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-const API = "http://localhost:3001/api/notificaciones";
+//const API = "http://localhost:3001/api/notificaciones";
+//const API = "/api/notificaciones"; // sin http://localhost:3001
 
+const STATIC_BASE = (() => {
+  const h = window.location.hostname;
+  if (h === "192.168.16.198") return "http://192.168.16.198:3001";
+  if (h === "201.151.218.138") return "http://201.151.218.138:3001";
+  return "http://localhost:3001";
+})();
+
+const API = `${STATIC_BASE}/api/notificaciones`;
 function agruparPorFecha(notifs) {
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
@@ -61,28 +70,39 @@ export function useNotifications() {
       setLoading(false);
     }
   }, []);
-
   useEffect(() => {
     if (!user) return;
     cargar();
 
-    const es = new EventSource(`${API}/stream?token=${token()}`);
+    // Polling cada 15 segundos
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${API}?limite=50`, { headers: headers() });
+        const json = await res.json();
+        if (json.ok) {
+          const nuevas = json.data.filter((n) => !n.leida);
+          const nuevasCant = nuevas.length;
 
-    es.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      if (data.tipo === "nueva_notificacion") {
-        setNotifs((prev) => [data.notificacion, ...prev]);
-        setUnread((prev) => prev + 1);
-        setPulse(true);
-        setTimeout(() => setPulse(false), 1000);
-        setToastNotif(data.notificacion);
-      }
-    };
+          // Si llegaron notificaciones nuevas mostrar toast
+          setNotifs((prev) => {
+            const prevIds = new Set(prev.map((n) => n.idNotificacion));
+            const recienLlegadas = json.data.filter(
+              (n) => !prevIds.has(n.idNotificacion),
+            );
+            if (recienLlegadas.length > 0) {
+              setToastNotif(recienLlegadas[0]);
+              setPulse(true);
+              setTimeout(() => setPulse(false), 1000);
+            }
+            return json.data;
+          });
+          setUnread(nuevasCant);
+        }
+      } catch {}
+    }, 15000);
 
-    es.onerror = () => es.close();
-    return () => es.close();
+    return () => clearInterval(interval);
   }, [user]);
-
   const marcarLeida = async (idNotificacion) => {
     await fetch(`${API}/${idNotificacion}/leer`, {
       method: "PATCH",
